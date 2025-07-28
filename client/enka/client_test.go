@@ -2,7 +2,7 @@
 // +build integration
 
 // export RUN_INTEGRATION_TESTS=true
-// go test -v ./clients/enka -tags=integration
+// go test -v ./client/enka -tags=integration
 
 package enka
 
@@ -32,7 +32,7 @@ func TestGetUserProfileInvalidUsername(t *testing.T) {
 
 	client := NewClient(nil, nil, "test-agent")
 	_, err := client.GetUserProfile(context.Background(), "")
-	if err != common.ErrInvalidUsername {
+	if err != ErrInvalidUsername {
 		t.Errorf("expected ErrInvalidUsername, got %v", err)
 	}
 }
@@ -45,7 +45,7 @@ func TestGetUserProfileNotFound(t *testing.T) {
 
 	client := NewClient(nil, nil, "test-agent")
 	_, err := client.GetUserProfile(context.Background(), "nonexistentuser12345")
-	if err != common.ErrUserNotFound {
+	if err != ErrUserNotFound {
 		t.Errorf("expected ErrUserNotFound, got %v", err)
 	}
 }

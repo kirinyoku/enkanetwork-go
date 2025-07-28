@@ -2,7 +2,7 @@
 // +build integration
 
 // export RUN_INTEGRATION_TESTS=true
-// go test -v ./clients/genshin -tags=integration
+// go test -v ./client/genshin -tags=integration
 
 package genshin
 
@@ -32,7 +32,7 @@ func TestGetProfileNotFound(t *testing.T) {
 
 	client := NewClient(nil, nil, "test-agent")
 	_, err := client.GetProfile(context.Background(), "987654321")
-	if err != common.ErrPlayerNotFound {
+	if err != ErrPlayerNotFound {
 		t.Errorf("expected ErrPlayerNotFound, got %v", err)
 	}
 }
@@ -45,7 +45,7 @@ func TestGetPlayerInfoInvalidUID(t *testing.T) {
 
 	client := NewClient(nil, nil, "test-agent")
 	_, err := client.GetPlayerInfo(context.Background(), "123")
-	if err != common.ErrInvalidUIDFormat {
+	if err != ErrInvalidUIDFormat {
 		t.Errorf("expected ErrInvalidUIDFormat, got %v", err)
 	}
 }
@@ -58,7 +58,7 @@ func TestGetPlayerInfoNotFound(t *testing.T) {
 
 	client := NewClient(nil, nil, "test-agent")
 	_, err := client.GetPlayerInfo(context.Background(), "987654321")
-	if err != common.ErrPlayerNotFound {
+	if err != ErrPlayerNotFound {
 		t.Errorf("expected ErrPlayerNotFound, got %v", err)
 	}
 }
@@ -131,7 +131,7 @@ func TestGetPlayerInfo(t *testing.T) {
 		t.Fatalf("failed to marshal client response to JSON: %v", err)
 	}
 
-	url := fmt.Sprintf("https://enka.network/api/uid/%s/?info", uid)
+	url := fmt.Sprintf("https://enka.network/api/uid/%s?info", uid)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		t.Fatalf("failed to create HTTP request: %v", err)

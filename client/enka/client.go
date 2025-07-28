@@ -82,7 +82,9 @@ func NewClient(httpClient *http.Client, cache common.Cache, userAgent string) *C
 //
 // Returns:
 //   - *Owner: A pointer to the user's profile if successful.
-//   - error: An error if the request fails. Possible errors include:
+//   - error: An error if the request fails.
+//
+// Possible errors include:
 //   - ErrInvalidUsername: If the username is empty.
 //   - ErrUserNotFound: If the user does not exist.
 //   - Other errors for network issues or unexpected HTTP status codes.
@@ -99,7 +101,7 @@ func NewClient(httpClient *http.Client, cache common.Cache, userAgent string) *C
 //	fmt.Println("Bio:", owner.Profile.Bio)
 func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.Owner, error) {
 	if username == "" {
-		return nil, common.ErrInvalidUsername
+		return nil, ErrInvalidUsername
 	}
 
 	if c.Cache != nil {
@@ -111,7 +113,7 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.O
 		}
 	}
 
-	url := fmt.Sprintf("%s/profile/%s/", common.BaseURL, username)
+	url := fmt.Sprintf("%s/profile/%s", common.BaseURL, username)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -126,7 +128,7 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.O
 	if resp.StatusCode != http.StatusOK {
 		switch resp.StatusCode {
 		case 404:
-			return nil, common.ErrUserNotFound
+			return nil, ErrUserNotFound
 		default:
 			return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 		}
@@ -164,7 +166,11 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.O
 //
 // Returns:
 //   - *Hoyos: A pointer to the list of hoyos if successful.
-//   - error: An error if the request fails, such as ErrInvalidUsername or ErrUserNotFound.
+//   - error: An error if the request fails.
+//
+// Possible errors include:
+//   - ErrInvalidUsername: If the username is empty.
+//   - ErrUserNotFound: If the user does not exist.
 //
 // Example:
 //
@@ -177,7 +183,7 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.O
 //	fmt.Println("Hoyos:", hoyos)
 func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (*Hoyos, error) {
 	if username == "" {
-		return nil, common.ErrInvalidUsername
+		return nil, ErrInvalidUsername
 	}
 
 	if c.Cache != nil {
@@ -194,6 +200,7 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (*Hoy
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("User-Agent", c.UserAgent)
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -204,7 +211,7 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (*Hoy
 	if resp.StatusCode != http.StatusOK {
 		switch resp.StatusCode {
 		case 404:
-			return nil, common.ErrUserNotFound
+			return nil, ErrUserNotFound
 		default:
 			return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 		}
@@ -237,7 +244,12 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (*Hoy
 //
 // Returns:
 //   - *Hoyo: A pointer to the hoyo data if successful.
-//   - error: An error if the request fails, such as ErrInvalidUsername or ErrHoyoAccountNotFound.
+//   - error: An error if the request fails.
+//
+// Possible errors include:
+//   - ErrInvalidUsername: If the username is empty.
+//   - ErrInvalidHoyoHash: If the hoyo hash is empty.
+//   - ErrHoyoAccountNotFound: If the hoyo account does not exist.
 //
 // Example:
 //
@@ -250,9 +262,11 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (*Hoy
 //	fmt.Println("Hoyo:", hoyo)
 func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_hash string) (*Hoyo, error) {
 	if username == "" {
-		return nil, common.ErrInvalidUsername
-	} else if hoyo_hash == "" {
-		return nil, common.ErrInvalidHoyoHash
+		return nil, ErrInvalidUsername
+	}
+
+	if hoyo_hash == "" {
+		return nil, ErrInvalidHoyoHash
 	}
 
 	if c.Cache != nil {
@@ -269,6 +283,7 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("User-Agent", c.UserAgent)
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -279,7 +294,7 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 	if resp.StatusCode != http.StatusOK {
 		switch resp.StatusCode {
 		case 404:
-			return nil, common.ErrHoyoAccountNotFound
+			return nil, ErrHoyoAccountNotFound
 		default:
 			return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 		}
@@ -334,9 +349,11 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 //	fmt.Println("Builds:", builds)
 func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, hoyo_hash string) (*Builds, error) {
 	if username == "" {
-		return nil, common.ErrInvalidUsername
-	} else if hoyo_hash == "" {
-		return nil, common.ErrInvalidHoyoHash
+		return nil, ErrInvalidUsername
+	}
+
+	if hoyo_hash == "" {
+		return nil, ErrInvalidHoyoHash
 	}
 
 	if c.Cache != nil {
@@ -353,6 +370,7 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("User-Agent", c.UserAgent)
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -363,7 +381,7 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 	if resp.StatusCode != http.StatusOK {
 		switch resp.StatusCode {
 		case 404:
-			return nil, common.ErrHoyoAccountBuildsNotFound
+			return nil, ErrHoyoAccountBuildsNotFound
 		default:
 			return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 		}

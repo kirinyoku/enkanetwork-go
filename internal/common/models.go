@@ -13,9 +13,6 @@ type PlayerInfo struct {
 	// ------------------------------------ Genshin Impact ---------------------------------
 	NameCardId           int              `json:"nameCardId,omitempty"`           // Profile namecard ID
 	FinishAchievementNum int              `json:"finishAchievementNum,omitempty"` // Number of completed achievements
-	TowerFloorIndex      int              `json:"towerFloorIndex,omitempty"`      // Spiral Abyss floor reached
-	TowerLevelIndex      int              `json:"towerLevelIndex,omitempty"`      // Spiral Abyss chamber reached
-	TowerStarIndex       int              `json:"towerStarIndex,omitempty"`       // Spiral Abyss stars earned
 	ShowAvatarInfoList   []ShowAvatarInfo `json:"showAvatarInfoList,omitempty"`   // List of character information (IDs, levels, skins, constellations, elements).
 	ShowNameCardIdList   []int            `json:"showNameCardIdList,omitempty"`   // List of namecard IDs
 	ProfilePicture       *ProfilePicture  `json:"profilePicture,omitempty"`       // Player profile picture
@@ -24,6 +21,11 @@ type PlayerInfo struct {
 	TheaterStarIndex     int              `json:"theaterStarIndex,omitempty"`     // Imaginarium Theater stars earned
 	IsShowAvatarTalent   bool             `json:"isShowAvatarTalent,omitempty"`   // Whether the constellation level is displayed
 	FetterCount          int              `json:"fetterCount,omitempty"`          // Number of characters at maximum friendship level
+	TowerStarIndex       int              `json:"towerStarIndex,omitempty"`       // Spiral Abyss stars earned
+	TowerFloorIndex      int              `json:"towerFloorIndex,omitempty"`      // Spiral Abyss floor reached
+	TowerLevelIndex      int              `json:"towerLevelIndex,omitempty"`      // Spiral Abyss chamber reached
+	StygianIndex         int              `json:"stygianIndex,omitempty"`         // Stygian Onslaught difficulty mode
+	StygianSeconds       int              `json:"stygianSeconds,omitempty"`       // Stygian Onslaught time in seconds
 	// ------------------------------------ HONKAI: STAR RAIL ------------------------------------
 	HeadIcon           int                 `json:"headIcon,omitempty"`           // Profile picture ID
 	Birthday           int                 `json:"birthday,omitempty"`           // Player birthday

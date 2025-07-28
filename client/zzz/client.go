@@ -2,13 +2,12 @@
 // for fetching Zenless Zone Zero player game profiles. It is designed to be user-friendly.
 //
 // The API provides data about players, such as their nickname, level, agents,
-// equipment, etc. This client simplifies access to this data with methods like
-// GetProfile and GetPlayerInfo.
+// equipment, etc. This client simplifies access to this data with GetProfile method.
 //
 // To use this package:
 //  1. Create a Client instance using NewClient, optionally providing a custom HTTP
 //     client, cache, and User-Agent string.
-//  2. Call methods like GetProfile to fetch player data.
+//  2. Call GetProfile method to fetch player data.
 //  3. Handle errors returned by the methods, which provide clear information about
 //     issues such as invalid UID, player not found, or rate limit exceeded.
 //  4. Use a context to control request timeouts or cancellation as needed.
@@ -106,8 +105,10 @@ func NewClient(httpClient *http.Client, cache common.Cache, userAgent string) *C
 //   - uid: The player's UID, which must be a 9 or 10-digit string (e.g., "1301806568").
 //
 // Returns:
-//   - *Profile: A pointer to the player's profile if the request is successful.
-//   - error: An error if the request fails. Possible errors include:
+//   - *Profile: A pointer to the Profile struct if the request is successful.
+//   - error: An error if the request fails.
+//
+// Possible errors include:
 //   - ErrInvalidUIDFormat: If the UID is not a 9 or 10-digit number.
 //   - ErrPlayerNotFound: If the player does not exist.
 //   - ErrRateLimited: If the rate limit is exceeded after retries.
@@ -123,11 +124,11 @@ func NewClient(httpClient *http.Client, cache common.Cache, userAgent string) *C
 //	    fmt.Println("Error:", err)
 //	    return
 //	}
-//	fmt.Println("Player Nickname:", profile.PlayerInfo.Nickname)
-//	fmt.Println("World Level:", profile.PlayerInfo.WorldLevel)
+//	fmt.Println("Player Nickname:", profile.PlayerInfo.SocialDetail.ProfileDetail.Nickname)
+//	fmt.Println("World Level:", profile.PlayerInfo.SocialDetail.ProfileDetail.Level)
 func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 	if !isValidUID(uid) {
-		return nil, common.ErrInvalidUIDFormat
+		return nil, ErrInvalidUIDFormat
 	}
 
 	if c.Cache != nil {
@@ -139,59 +140,10 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 		}
 	}
 
-	url := fmt.Sprintf("%s/zzz/uid/%s/", common.BaseURL, uid)
+	url := fmt.Sprintf("%s/zzz/uid/%s", common.BaseURL, uid)
 	profile, err := c.fetchProfileWithRetry(ctx, url)
 	if err == nil && c.Cache != nil {
 		key := "zzz_" + uid
-		c.Cache.Set(key, profile, time.Duration(profile.TTL)*time.Second)
-	}
-	return profile, err
-}
-
-// GetPlayerInfo fetches limited player profile information for the given UID.
-// Unlike GetProfile, this method uses the "?info" query parameter to retrieve only basic information
-// about the player (without detailed information about the agents in the showcase),
-// which can be faster and use fewer API resources.
-//
-// The behavior is similar to GetProfile: it checks the cache first, makes an HTTP
-// request if needed, retries on 429 errors, and caches the response using the ttl
-// value from the API.
-//
-// Parameters:
-//   - ctx: A context.Context to control the request's timeout or cancellation.
-//   - uid: The player's UID, which must be a 9 or 10-digit string.
-//
-// Returns:
-//   - *Profile: A pointer to the player's limited profile if successful.
-//   - error: An error if the request fails (same possible errors as GetProfile).
-//
-// Example:
-//
-//	ctx := context.Background()
-//	profile, err := client.GetPlayerInfo(ctx, "1301806568")
-//	if err != nil {
-//	    fmt.Println("Error:", err)
-//	    return
-//	}
-//	fmt.Println("Player Nickname:", profile.PlayerInfo.Nickname)
-func (c *Client) GetPlayerInfo(ctx context.Context, uid string) (*Profile, error) {
-	if !isValidUID(uid) {
-		return nil, common.ErrInvalidUIDFormat
-	}
-
-	if c.Cache != nil {
-		key := "zzz_" + uid + "_info"
-		if cached, ok := c.Cache.Get(key); ok {
-			if profile, ok := cached.(*Profile); ok {
-				return profile, nil
-			}
-		}
-	}
-
-	url := fmt.Sprintf("%s/zzz/uid/%s/?info", common.BaseURL, uid)
-	profile, err := c.fetchProfileWithRetry(ctx, url)
-	if err == nil && c.Cache != nil {
-		key := "zzz_" + uid + "_info"
 		c.Cache.Set(key, profile, time.Duration(profile.TTL)*time.Second)
 	}
 	return profile, err
@@ -217,63 +169,76 @@ func (c *Client) GetPlayerInfo(ctx context.Context, uid string) (*Profile, error
 // Returns:
 //   - *Profile: A pointer to the player's profile if successful.
 //   - error: An error if the request fails or retries are exhausted.
+//
+// Error handling includes specific error types for common HTTP status codes:
+//   - 400: Invalid UID format
+//   - 404: Player not found
+//   - 424: Server under maintenance
+//   - 429: Rate limited (handled automatically with retries)
+//   - 500: Internal server error
+//   - 503: Service unavailable
 func (c *Client) fetchProfileWithRetry(ctx context.Context, url string) (*Profile, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("User-Agent", c.UserAgent)
-
-	var retries int
 	const maxRetries = 3
+	var profile Profile
 
-	for {
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("User-Agent", c.UserAgent)
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
-			return nil, fmt.Errorf("request failed: %w", err)
+			return nil, err
 		}
 		defer resp.Body.Close()
 
-		switch resp.StatusCode {
-		case http.StatusOK:
-			var profile Profile
-			if err := json.NewDecoder(resp.Body).Decode(&profile); err != nil {
-				return nil, fmt.Errorf("failed to decode response: %w", err)
+		if resp.StatusCode == http.StatusOK {
+			err = json.NewDecoder(resp.Body).Decode(&profile)
+			if err != nil {
+				return nil, fmt.Errorf("failed to decode profile: %w", err)
 			}
 			return &profile, nil
+		}
 
-		case http.StatusTooManyRequests:
-			if retries >= maxRetries {
-				return nil, common.ErrRateLimited
-			}
-			retries++
-
+		if resp.StatusCode == http.StatusTooManyRequests {
 			retryAfter := resp.Header.Get("Retry-After")
-			var waitTime time.Duration
+			var delay time.Duration
+
 			if retryAfter != "" {
-				waitTime, _ = time.ParseDuration(retryAfter + "s")
+				if seconds, err := time.ParseDuration(retryAfter + "s"); err == nil {
+					delay = seconds
+				} else {
+					delay = 5 * time.Second
+				}
 			} else {
-				waitTime = 5 * time.Second
+				delay = 5 * time.Second
 			}
-
-			time.Sleep(waitTime)
-			continue
-
-		case http.StatusBadRequest:
-			return nil, common.ErrInvalidUIDFormat
-		case http.StatusNotFound:
-			return nil, common.ErrPlayerNotFound
-		case http.StatusFailedDependency:
-			return nil, common.ErrServerMaintenance
-		case http.StatusInternalServerError:
-			return nil, common.ErrServerError
-		case http.StatusServiceUnavailable:
-			return nil, common.ErrServiceUnavailable
-		default:
-			return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+			select {
+			case <-time.After(delay):
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			}
+		} else {
+			switch resp.StatusCode {
+			case 400:
+				return nil, ErrInvalidUIDFormat
+			case 404:
+				return nil, ErrPlayerNotFound
+			case 424:
+				return nil, ErrServerMaintenance
+			case 500:
+				return nil, ErrServerError
+			case 503:
+				return nil, ErrServiceUnavailable
+			default:
+				return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
+			}
 		}
 	}
+
+	return nil, fmt.Errorf("rate limited: %w", ErrRateLimited)
 }
 
 // isValidUID checks if the provided UID is a valid 9 or 10-digit number.

@@ -5,7 +5,6 @@
 //
 // The package defines:
 //   - A base URL for the EnkaNetwork API.
-//   - Common error types for consistent error handling across all games.
 //   - A Cache interface for storing API responses to reduce the number of requests.
 //   - A Client struct and NewClient function to set up HTTP requests with customizable
 //     settings like timeouts and caching.
@@ -13,7 +12,6 @@ package common
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"time"
 )
@@ -23,58 +21,6 @@ import (
 // specific endpoints by adding paths to this URL.
 const (
 	BaseURL = "https://enka.network/api"
-)
-
-var (
-	// ErrInvalidUIDFormat is returned when the provided User ID (UID) does not follow
-	// the expected format. UID must be a 9-digit number like "618285856".
-	// If you provide something else, like "abc" or "123", this error
-	// will be returned to let you know the UID is incorrect.
-	ErrInvalidUIDFormat = errors.New("invalid UID format")
-	// ErrPlayerNotFound is returned when the API cannot find a player with the given
-	// UID. This happens if the UID is valid (e.g., a 9-digit number) but no player
-	// exists with that ID. For example, if you try to fetch a profile for
-	// a non-existent UID like "987654321", you'll get this error.
-	ErrPlayerNotFound = errors.New("player not found")
-	// ErrServerMaintenance is returned when the EnkaNetwork API is temporarily down
-	// for maintenance or experiencing issues, often after a game update. This usually
-	// means the API is being updated to support new game data and will be available
-	// again soon. If you see this error, try again later.
-	ErrServerMaintenance = errors.New("server is under maintenance")
-	// ErrRateLimited is returned when your application sends too many requests to the
-	// API in a short time, hitting the API's rate limit (HTTP 429). The EnkaNetwork API
-	// restricts how often you can make requests to prevent overload. If you get this
-	// error, wait a bit before trying again or use caching to reduce requests.
-	ErrRateLimited = errors.New("rate limited, too many requests")
-	// ErrServerError is returned when the API encounters an unexpected problem on its
-	// side (HTTP 500). This is a general server issue, not caused by your request, and
-	// usually means something went wrong with the API itself. Try again later if you
-	// see this error.
-	ErrServerError = errors.New("server error")
-	// ErrServiceUnavailable is returned when the EnkaNetwork API is completely
-	// unavailable (HTTP 503). This could happen during high server load or unexpected
-	// downtime. If you get this error, check the API status at https://status.enka.network
-	// and try again later.
-	ErrServiceUnavailable = errors.New("service unavailable")
-	// ErrUserNotFound is returned when the API cannot find an Enka user with
-	// the provided username. This happens if you try to fetch a user profile for a
-	// username that doesn't exist on EnkaNetwork.
-	ErrUserNotFound = errors.New("user not found")
-	// ErrHoyoAccountNotFound is returned when a call to the GetUserProfileHoyo or GetUserProfileHoyoBuilds
-	// method cannot find a Hoyo account with the specified hoyo_hash for the provided username.
-	ErrHoyoAccountNotFound = errors.New("hoyo account not found")
-	// ErrHoyoAccountBuildsNotFound is returned when a call to the GetUserProfileHoyoBuilds
-	// method cannot find builds for the specified Hoyo account.
-	ErrHoyoAccountBuildsNotFound = errors.New("no builds found for hoyo account")
-	// ErrInvalidUsername is returned when the provided username is empty or invalid.
-	// For example, if you try to fetch a user profile with an empty string ("") as the
-	// username, this error will be returned to indicate that a valid username is required.
-	ErrInvalidUsername = errors.New("username cannot be empty")
-	// ErrInvalidHoyoHash is returned if the provided hoyo_hash is empty
-	// when calling the GetUserProfileHoyo or GetUserProfileHoyoBuilds method. For example, if you try
-	// to fetch a user hoyo profile with an empty string ("") as the hoyo_hash,
-	// this error will be returned to indicate that a valid hoyo_hash is required.
-	ErrInvalidHoyoHash = errors.New("hoyo_hash cannot be empty")
 )
 
 // Cache defines an interface for caching API responses.

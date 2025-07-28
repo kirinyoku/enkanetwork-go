@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0] - 2025-07-28
+### Changed
+- Moved error definitions from `common` package to their respective game client packages
+- Removed the `GetPlayerInfo` method from the `hsr` and `zzz` packages.
+- Updated documentation for all clients.
+
+### Added
+- Added `StygianIndex` and `StygianSeconds` fields to `PlayerInfo` for Stygian Onslaught mode in Genshin Impact.
+
 ## [0.1.0] - 2025-05-29
 ### Added
 - The initial version of the `EnkaNetwork Go Client` library for working with the EnkaNetwork API.

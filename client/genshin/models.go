@@ -16,7 +16,8 @@ type Profile struct {
 	// PlayerInfo contains basic information about the game account from the player's showcase
 	PlayerInfo common.PlayerInfo `json:"playerInfo"`
 	// AvatarInfoList contains detailed information for each character in the showcase.
-	// If missing, the showcase is either hidden by the player or contains no characters
+	// If missing, the showcase is either hidden by the player or contains no characters.
+	// The GetPlayerInfo method always returns AvatarInfoList as an empty slice.
 	AvatarInfoList []AvatarInfo `json:"avatarInfoList,omitempty"`
 	// Owner is the Enka profile associated with the provided UID.
 	// The response includes an Owner if:

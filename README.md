@@ -75,10 +75,11 @@ func main() {
 	client := genshin.NewClient(nil, nil, "my-app/1.0")
 
 	// Create a context for the request
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	// Fetch player profile (replace "123456789" with a valid 9-digit UID)
-	profile, err := client.GetProfile(ctx, "123456789")
+	// Fetch player profile
+	profile, err := client.GetProfile(ctx, "618285856")
 	if err != nil {
 		log.Fatalf("Failed to fetch profile: %v", err)
 	}
@@ -97,122 +98,396 @@ func main() {
 
 ## Clients
 
-The library provides dedicated clients for each supported game and the EnkaNetwork platform. Each client offers a consistent interface with methods like `GetProfile` and `GetPlayerInfo`.
+The library provides dedicated clients for each supported game and the EnkaNetwork platform.
 
 ### Genshin Impact
 
-The Genshin Impact client retrieves player data, including profiles and character details.
+Genshin Impact client offers a consistent interface with two methods: `GetProfile` and `GetPlayerInfo`.
 
+#### GetProfile
+
+`GetProfile` fetches the complete player profile, including both basic player information and detailed character data (if the showcase is public). This method makes an additional request to obtain the `AvatarInfoList` containing detailed character information.
+
+**Returns**:
+- `*Profile` containing:
+  - `PlayerInfo`: Basic player information (nickname, level, signature, etc.)
+  - `AvatarInfoList`: Detailed information about characters in the showcase
+  - `Owner`: Enka profile information (if public and linked)
+  - `TTL`: Cache duration in seconds
+  - `UID`: The player's UID
+
+**Example**:
 ```go
 import "github.com/kirinyoku/enkanetwork-go/client/genshin"
 
 // Initialize client
 client := genshin.NewClient(nil, nil, "my-app/1.0")
 
-// Fetch full player profile
-profile, err := client.GetProfile(ctx, "123456789")
+// Fetch full player profile with character details
+profile, err := client.GetProfile(ctx, "618285856")
 if err != nil {
-	log.Fatalf("Failed to fetch profile: %v", err)
+    log.Fatalf("Failed to fetch profile: %v", err)
 }
 
-// Fetch basic player info
-playerInfo, err := client.GetPlayerInfo(ctx, "123456789")
+// Access player information
+fmt.Printf("Nickname: %s\n", profile.PlayerInfo.Nickname)
+fmt.Printf("Adventure Rank: %d\n", profile.PlayerInfo.Level)
+
+// Check if character showcase is available
+if len(profile.AvatarInfoList) > 0 {
+	fmt.Printf("Characters in showcase: %d\n", len(profile.AvatarInfoList))
+	for _, char := range profile.AvatarInfoList {
+		fmt.Printf("Character ID: %d (Level %s)\n", char.AvatarID, char.PropMap["4001"].Ival)
+	}
+}
+```
+
+#### GetPlayerInfo
+
+`GetPlayerInfo` fetches only the basic player information without the detailed character data. This method is faster and has fewer rate limits since it makes fewer requests to the API.
+
+**Returns**:
+- `*Profile` containing:
+  - `PlayerInfo`: Basic player information (nickname, level, signature, etc.)
+  - `AvatarInfoList`: **ALWAYS EMPTY SLICE**
+  - `Owner`: Enka profile information (if public and linked)
+  - `TTL`: Cache duration in seconds
+  - `UID`: The player's UID
+
+**Example**:
+```go
+// Fetch basic player info (faster, fewer rate limits)
+profile, err := client.GetPlayerInfo(ctx, "618285856")
 if err != nil {
-	log.Fatalf("Failed to fetch player info: %v", err)
+    log.Fatalf("Failed to fetch player info: %v", err)
 }
 
-fmt.Printf("Nickname: %s\n", playerInfo.Nickname)
+fmt.Printf("Player: %s (AR %d)\n", 
+    profile.PlayerInfo.Nickname, 
+    profile.PlayerInfo.Level)
+```
+
+#### Error Handling
+
+The Genshin Impact client provides a set of error types for common API scenarios.
+
+**Example**:
+```go
+import "github.com/kirinyoku/enkanetwork-go/client/genshin"
+
+client := genshin.NewClient(nil, nil, "my-app/1.0")
+profile, err := client.GetProfile(ctx, "invalid")
+if err != nil {
+	switch {
+	case errors.Is(err, genshin.ErrInvalidUIDFormat):
+		fmt.Println("Error: Invalid UID format. Use a 9-digit UID.")
+	case errors.Is(err, genshin.ErrPlayerNotFound):
+		fmt.Println("Error: Player not found.")
+	case errors.Is(err, genshin.ErrRateLimited):
+		fmt.Println("Error: Rate limit exceeded. Please try again later.")
+	case errors.Is(err, genshin.ErrServerMaintenance):
+		fmt.Println("Error: API is under maintenance. Check https://status.enka.network/.")
+	default:
+		fmt.Printf("Unexpected error: %v\n", err)
+	}
+	return
+}
+fmt.Printf("Player: %s\n", profile.PlayerInfo.Nickname)
 ```
 
 ### Honkai: Star Rail
 
-The Honkai: Star Rail client retrieves player and trailblazer data.
+The Honkai: Star Rail client retrieves comprehensive player and characters data through a single `GetProfile` method. Unlike the Genshin Impact client, HSR's API provides all data in a single request. 
 
+#### GetProfile
+
+`GetProfile` fetches the complete player profile, including detailed character information, equipment, and trailblazer data in a single request.
+
+**Returns**:
+- `*Profile` containing:
+  - `DetailInfo`: Player and characters information
+  - `TTL`: Cache duration in seconds
+  - `Owner`: Enka profile information (if public and linked)
+  - `UID`: The player's UID
+
+**Example**:
 ```go
 import "github.com/kirinyoku/enkanetwork-go/client/hsr"
 
 // Initialize client
 client := hsr.NewClient(nil, nil, "my-app/1.0")
 
-// Fetch full player profile
-profile, err := client.GetProfile(ctx, "123456789")
+// Create a context for the request
+ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
+
+// Fetch player profile
+profile, err := client.GetProfile(ctx, "800579959")
 if err != nil {
-	log.Fatalf("Failed to fetch profile: %v", err)
+    log.Fatalf("Failed to fetch profile: %v", err)
 }
 
-// Fetch basic player info
-playerInfo, err := client.GetPlayerInfo(ctx, "123456789")
-if err != nil {
-	log.Fatalf("Failed to fetch player info: %v", err)
-}
+// Access player information
+fmt.Printf("Nickname: %s\n", profile.DetailInfo.Nickname)
+fmt.Printf("Trailblaze Level: %d\n", profile.DetailInfo.Level)
 
-fmt.Printf("Nickname: %s\n", playerInfo.Nickname)
+// Access character information
+if len(profile.DetailInfo.AvatarDetailList) > 0 {
+	for _, char := range profile.DetailInfo.AvatarDetailList {
+		fmt.Printf("- %d (Level %d)\n", char.AvatarID, char.Level)
+	}
+}
+```
+
+#### Error Handling
+
+The Honkai: Star Rail client provides a set of error types for common API scenarios.
+
+**Example**:
+```go
+import "github.com/kirinyoku/enkanetwork-go/client/hsr"
+
+client := hsr.NewClient(nil, nil, "my-app/1.0")
+profile, err := client.GetProfile(ctx, "invalid")
+if err != nil {
+	switch {
+	case errors.Is(err, hsr.ErrInvalidUIDFormat):
+		fmt.Println("Error: Invalid UID format. Use a 9-digit UID.")
+	case errors.Is(err, hsr.ErrPlayerNotFound):
+		fmt.Println("Error: Player not found.")
+	case errors.Is(err, hsr.ErrRateLimited):
+		fmt.Println("Error: Rate limit exceeded. Please try again later.")
+	case errors.Is(err, hsr.ErrServerMaintenance):
+		fmt.Println("Error: API is under maintenance. Check https://status.enka.network/.")
+	default:
+		fmt.Printf("Unexpected error: %v\n", err)
+	}
+	return
+}
+fmt.Printf("Player: %s\n", profile.DetailInfo.Nickname)
 ```
 
 ### Zenless Zone Zero
 
-The Zenless Zone Zero client retrieves player and agent data.
+#### GetProfile
 
+`GetProfile` fetches the complete player profile, including detailed character information, equipment, and trailblazer data in a single request.
+
+**Returns**:
+- `*Profile` containing:
+  - `PlayerInfo`: Basic information about the game account from the player's showcase
+  - `TTL`: Cache duration in seconds
+  - `Owner`: Enka profile information (if public and linked)
+  - `UID`: The player's UID
+
+**Example**:
 ```go
 import "github.com/kirinyoku/enkanetwork-go/client/zzz"
 
 // Initialize client
 client := zzz.NewClient(nil, nil, "my-app/1.0")
 
-// Fetch full player profile
-profile, err := client.GetProfile(ctx, "123456789")
+// Create a context for the request
+ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
+
+// Fetch player profile
+profile, err := client.GetProfile(ctx, "1504687050")
 if err != nil {
-	log.Fatalf("Failed to fetch profile: %v", err)
+    log.Fatalf("Failed to fetch profile: %v", err)
 }
 
-// Fetch basic player info
-playerInfo, err := client.GetPlayerInfo(ctx, "123456789")
-if err != nil {
-	log.Fatalf("Failed to fetch player info: %v", err)
-}
+// Access player information
+fmt.Printf("Nickname: %s\n", profile.PlayerInfo.SocialDetail.ProfileDetail.Nickname)
+fmt.Printf("Trailblaze Level: %d\n", profile.PlayerInfo.SocialDetail.ProfileDetail.Level)
 
-fmt.Printf("Nickname: %s\n", playerInfo.Nickname)
+// Access characters information
+if len(profile.PlayerInfo.ShowcaseDetail.AvatarList) > 0 {
+	for _, avatar := range profile.PlayerInfo.ShowcaseDetail.AvatarList {
+		fmt.Printf("Character ID: %d (Level %d)\n", avatar.ID, avatar.Level)
+	}
+}
+```
+
+#### Error Handling
+
+The Zenless Zone Zero client provides a set of error types for common API scenarios.
+
+**Example**:
+```go
+import "github.com/kirinyoku/enkanetwork-go/client/zzz"
+
+client := zzz.NewClient(nil, nil, "my-app/1.0")
+profile, err := client.GetProfile(ctx, "invalid")
+if err != nil {
+	switch {
+	case errors.Is(err, zzz.ErrInvalidUIDFormat):
+		fmt.Println("Error: Invalid UID format. Use a 9-digit or 10-digit UID.")
+	case errors.Is(err, zzz.ErrPlayerNotFound):
+		fmt.Println("Error: Player not found.")
+	case errors.Is(err, zzz.ErrRateLimited):
+		fmt.Println("Error: Rate limit exceeded. Please try again later.")
+	case errors.Is(err, zzz.ErrServerMaintenance):
+		fmt.Println("Error: API is under maintenance. Check https://status.enka.network/.")
+	default:
+		fmt.Printf("Unexpected error: %v\n", err)
+	}
+	return
+}
+fmt.Printf("Player: %s\n", profile.DetailInfo.Nickname)
 ```
 
 ### EnkaNetwork
 
-The EnkaNetwork client provides access to user-specific features, such as Enka profiles and linked HoYoverse game data.
+The EnkaNetwork client provides access to EnkaNetwork user profiles and their linked game accounts. This client allows you to fetch user information, their verified game accounts, and character builds.
+
+#### Initialization
 
 ```go
 import "github.com/kirinyoku/enkanetwork-go/client/enka"
 
-// Initialize client
+// Initialize client with default settings
 client := enka.NewClient(nil, nil, "my-app/1.0")
 
-// Fetch EnkaNetwork user profile
-userProfile, err := client.GetUserProfile(ctx, "enka_username")
-if err != nil {
-	log.Fatalf("Failed to fetch user profile: %v", err)
-}
-
-// Fetch HoYoverse profile linked to Enka account
-hoyoProfile, err := client.GetUserProfileHoyo(ctx, "enka_username", "hoyo_hash")
-if err != nil {
-	log.Fatalf("Failed to fetch HoYoverse profile: %v", err)
-}
-
-fmt.Printf("Username: %s\n", userProfile.Username)
+// Or with custom HTTP client and cache
+customClient := &http.Client{Timeout: 20 * time.Second}
+cache := // your cache implementation
+client := enka.NewClient(customClient, cache, "my-app/1.0")
 ```
 
-### Client Configuration
+#### GetUserProfile
 
-All clients accept optional `http.Client` and `Cache` parameters for customization:
+Fetches the Enka user profile for the given username.
 
+**Returns**:
+- `*Owner` containing:
+	- ID: The Enka user ID
+	- Hash: The Enka user hash
+	- Username: The Enka username
+	- Profile: Patreon profile data for Patreon members
+- `error`: An error if the request fails
+
+**Example**:
 ```go
-import "net/http"
+profile, err := client.GetUserProfile(ctx, "Algoinde")
+if err != nil {
+    log.Fatalf("Failed to fetch user profile: %v", err)
+}
+fmt.Printf("Username: %s\n", profile.Username)
+fmt.Printf("Bio: %s\n", profile.Profile.Bio)
+```
 
-// Custom HTTP client with timeout
-httpClient := &http.Client{
-	Timeout: 10 * time.Second,
+#### GetUserProfileHoyos
+
+Fetches a list of verified and public game accounts (hoyos) linked to an EnkaNetwork profile.
+
+**Returns**:
+- `*Hoyos`: A map of game account hashes to their metadata (map[string]Hoyo)
+- `error`: An error if the request fails
+
+**Example**:
+```go
+hoyos, err := client.GetUserProfileHoyos(ctx, "Algoinde")
+if err != nil {
+	log.Fatalf("Failed to fetch hoyos: %v", err)
 }
 
-// Initialize client with custom HTTP client and cache
-client := genshin.NewClient(httpClient, cache, "my-app/1.0")
+for hash, hoyo := range *hoyos {
+	fmt.Printf("hoyo_hash: %s, region: %s, uid: %d\n", hash, hoyo.Region, hoyo.UID)
+}
+```
+
+#### GetUserProfileHoyo
+
+Fetches detailed information about a specific game account (hoyo).
+
+**Parameters**:
+- `username`: EnkaNetwork username
+- `hoyo_hash`: The hash of the game account (obtained from GetUserProfileHoyos)
+
+**Returns**:
+- `*Hoyo` containing:
+	- UID: The UID of the game account
+	- UIDPublic: Whether the UID is public
+	- Public: Whether the Hoyo account is public
+	- Verified: Whether the Hoyo account is verified
+	- PlayerInfo: Player information for the account
+	- Hash: The hash of the game account
+	- Region: The region of the game account
+	- AvatarOrder: The order of the characters in the game account
+	- Order: The order of the Hoyo account
+	- LivePublic: Whether the live build is public
+	- HoyoType: The ID of the Hoyo game (0 for Genshin, 1 for HSR, 2 for ZZZ)
+- `error`: An error if the request fails
+
+**Example**:
+```go
+hoyo, err := client.GetUserProfileHoyo(ctx, "Algoinde", "4Wjv2e")
+if err != nil {
+	log.Fatalf("Failed to fetch hoyo: %v", err)
+}
+
+switch hoyo.HoyoType {
+case 0:
+	fmt.Println("Genshin Impact")
+case 1:
+	fmt.Println("Honkai: Star Rail")
+case 2:
+	fmt.Println("Zenless Zone Zero")
+default:
+	fmt.Println("Unknown game")
+}
+```
+
+#### GetUserProfileHoyoBuilds
+
+Fetches character builds for a specific game account.
+
+**Parameters**:
+- `username`: EnkaNetwork username
+- `hoyo_hash`: The hash of the game account
+
+**Returns**:
+- `*Builds`: A map of character IDs to their builds (map[string][]Build)
+- `error`: An error if the request fails
+
+**Example**:
+```go
+builds, err := client.GetUserProfileHoyoBuilds(ctx, "Algoinde", "4Wjv2e")
+if err != nil {
+    log.Fatalf("Failed to fetch builds: %v", err)
+}
+for charID, charBuilds := range *builds {
+    fmt.Printf("Character %s has %d builds\n", charID, len(charBuilds))
+}
+```
+
+#### Error Handling
+
+The EnkaNetwork client provides a set of error types for common API scenarios.
+
+**Example**:
+```go
+import "github.com/kirinyoku/enkanetwork-go/client/enka"
+
+client := enka.NewClient(nil, nil, "my-app/1.0")
+profile, err := client.GetUserProfile(ctx, "invalid")
+if err != nil {
+	switch {
+	case errors.Is(err, enka.ErrInvalidUsername):
+		fmt.Println("Error: Invalid username.")
+	case errors.Is(err, enka.ErrPlayerNotFound):
+		fmt.Println("Error: Player not found.")
+	case errors.Is(err, enka.ErrRateLimited):
+		fmt.Println("Error: Rate limit exceeded. Please try again later.")
+	case errors.Is(err, enka.ErrServerMaintenance):
+		fmt.Println("Error: API is under maintenance. Check https://status.enka.network/.")
+	default:
+		fmt.Printf("Unexpected error: %v\n", err)
+	}
+	return
+}
+fmt.Printf("Player: %s\n", profile.Username)
 ```
 
 ## Advanced Features
@@ -223,8 +498,8 @@ To reduce API requests and improve performance, the library supports custom cach
 
 ```go
 type Cache interface {
-	Get(key string) (interface{}, bool)
-	Set(key string, value interface{}, expiration time.Duration)
+	Get(key string) (any, bool)
+	Set(key string, value any, expiration time.Duration)
 }
 ```
 
@@ -246,11 +521,11 @@ type simpleCache struct {
 }
 
 type cacheEntry struct {
-	value     interface{}
+	value     any
 	expiresAt time.Time
 }
 
-func (c *simpleCache) Get(key string) (interface{}, bool) {
+func (c *simpleCache) Get(key string) (any, bool) {
 	entry, exists := c.data[key]
 	if !exists || time.Now().After(entry.expiresAt) {
 		return nil, false
@@ -258,7 +533,7 @@ func (c *simpleCache) Get(key string) (interface{}, bool) {
 	return entry.value, true
 }
 
-func (c *simpleCache) Set(key string, value interface{}, expiration time.Duration) {
+func (c *simpleCache) Set(key string, value any, expiration time.Duration) {
 	c.data[key] = cacheEntry{
 		value:     value,
 		expiresAt: time.Now().Add(expiration),
@@ -285,59 +560,6 @@ func main() {
 - For production, consider persistent storage like Redis or a database.
 - Ensure cache keys are unique to avoid conflicts across clients.
 
-### Error Handling
-
-The library provides specific error types in the `common` package to handle API scenarios:
-
-- `ErrInvalidUIDFormat`: UID is not a valid 9-digit number.
-- `ErrPlayerNotFound`: Player with the given UID does not exist.
-- `ErrUserNotFound`: EnkaNetwork user not found.
-- `ErrInvalidUsername`: Invalid EnkaNetwork username.
-- `ErrRateLimited`: API rate limit exceeded (after retries).
-- `ErrServerMaintenance`: API is under maintenance.
-- `ErrServerError`: General server error.
-- `ErrServiceUnavailable`: API is unavailable.
-
-**Example: Handling errors**
-
-```go
-package main
-
-import (
-	"context"
-	"fmt"
-	"log"
-
-	"github.com/kirinyoku/enkanetwork-go/client/genshin"
-	"github.com/kirinyoku/enkanetwork-go/common"
-)
-
-func main() {
-	client := genshin.NewClient(nil, nil, "my-app/1.0")
-	profile, err := client.GetProfile(context.Background(), "invalid")
-	if err != nil {
-		switch {
-		case errors.Is(err, common.ErrInvalidUIDFormat):
-			fmt.Println("Error: Invalid UID format. Use a 9-digit UID.")
-		case errors.Is(err, common.ErrPlayerNotFound):
-			fmt.Println("Error: Player not found.")
-		case errors.Is(err, common.ErrRateLimited):
-			fmt.Println("Error: Rate limit exceeded. Please try again later.")
-		case errors.Is(err, common.ErrServerMaintenance):
-			fmt.Println("Error: API is under maintenance. Check https://status.enka.network/.")
-		default:
-			fmt.Printf("Unexpected error: %v\n", err)
-		}
-		return
-	}
-	fmt.Printf("Player: %s\n", profile.PlayerInfo.Nickname)
-}
-```
-
-**Tips**:
-- Use `errors.Is` for type-safe error checking.
-- Implement exponential backoff for `ErrRateLimited` in production.
-
 ### Context Support
 
 All API methods accept a `context.Context` for managing timeouts and cancellations.
@@ -357,7 +579,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	profile, err := client.GetProfile(ctx, "123456789")
+	profile, err := client.GetProfile(ctx, "618285856")
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
@@ -381,7 +603,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	go func() {
-		profile, err := client.GetProfile(ctx, "123456789")
+		profile, err := client.GetProfile(ctx, "618285856")
 		if err != nil {
 			log.Printf("Error: %v", err)
 			return

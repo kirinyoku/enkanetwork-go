@@ -48,8 +48,8 @@ type Build struct {
 
 // PlayerInfo contains basic information about a player's game account.
 type PlayerInfo struct {
-	SocialDetail   *SocialDetail   `json:"SocialDetail"`   // Agent showcase details
-	ShowcaseDetail *ShowcaseDetail `json:"ShowcaseDetail"` // Social profile details
+	SocialDetail   *SocialDetail   `json:"SocialDetail"`   // Social profile details
+	ShowcaseDetail *ShowcaseDetail `json:"ShowcaseDetail"` // Agent showcase details
 }
 
 // ShowcaseDetail contains a list of agents in the player’s showcase.
