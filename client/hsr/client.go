@@ -128,8 +128,9 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 		return nil, ErrInvalidUIDFormat
 	}
 
+	key := fmt.Sprintf("hsr_%s", uid)
+
 	if c.Cache != nil {
-		key := "hsr_" + uid
 		if cached, ok := c.Cache.Get(key); ok {
 			if profile, ok := cached.(*Profile); ok {
 				return profile, nil
@@ -140,9 +141,9 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 	url := fmt.Sprintf("%s/hsr/uid/%s", common.BaseURL, uid)
 	profile, err := c.fetchProfileWithRetry(ctx, url)
 	if err == nil && c.Cache != nil {
-		key := "hsr_" + uid
 		c.Cache.Set(key, profile, time.Duration(profile.TTL)*time.Second)
 	}
+
 	return profile, err
 }
 

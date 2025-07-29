@@ -2,7 +2,7 @@
 // +build integration
 
 // export RUN_INTEGRATION_TESTS=true
-// go test -v ./clients/zzz -tags=integration
+// go test -v ./client/zzz -tags=integration
 
 package zzz
 

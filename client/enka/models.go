@@ -9,10 +9,10 @@ import (
 	"github.com/kirinyoku/enkanetwork-go/internal/common"
 )
 
-// Builds is a map where the key is the character's avatarId and the value is a slice
+// AvatarBuildsMap is a map where the key is the avatarID and the value is a slice
 // of builds for that character, returned in random order. Each build includes an
 // "order" field that can be used to sort them for display.
-type Builds map[string][]Build
+type AvatarBuildsMap map[string][]Build
 
 // Build contains information about a specific character build.
 type Build struct {
@@ -134,4 +134,20 @@ type Settings struct {
 	Caption       *string  `json:"caption,omitempty"`       // Caption of the build
 	HonkardWidth  *float64 `json:"honkardWidth,omitempty"`  // Width of the image
 	Transform     *string  `json:"transform,omitempty"`     // Transformation applied to the image
+}
+
+// Owner represents an EnkaNetwork user profile associated with a game account.
+type Owner struct {
+	ID       int             `json:"id,omitempty"`       // User ID
+	Hash     string          `json:"hash,omitempty"`     // User hash
+	Username string          `json:"username,omitempty"` // Enka username
+	Profile  *PatreonProfile `json:"profile,omitempty"`  // Patreon profile data for Patreon members
+}
+
+// PatreonProfile contains Patreon-related information for an Enka user.
+type PatreonProfile struct {
+	Bio      string `json:"bio,omitempty"`       // User bio from Patreon
+	Level    int    `json:"level,omitempty"`     // Patreon membership level
+	Avatar   string `json:"avatar,omitempty"`    // Profile picture on Enka
+	ImageURL string `json:"image_url,omitempty"` // Profile picture from Patreon
 }

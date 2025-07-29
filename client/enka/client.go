@@ -99,15 +99,16 @@ func NewClient(httpClient *http.Client, cache common.Cache, userAgent string) *C
 //	}
 //	fmt.Println("Username:", owner.Username)
 //	fmt.Println("Bio:", owner.Profile.Bio)
-func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.Owner, error) {
+func (c *Client) GetUserProfile(ctx context.Context, username string) (*Owner, error) {
 	if username == "" {
 		return nil, ErrInvalidUsername
 	}
 
+	key := fmt.Sprintf("user_%s", username)
+
 	if c.Cache != nil {
-		key := "user_" + username
 		if cached, ok := c.Cache.Get(key); ok {
-			if owner, ok := cached.(*common.Owner); ok {
+			if owner, ok := cached.(*Owner); ok {
 				return owner, nil
 			}
 		}
@@ -134,14 +135,13 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.O
 		}
 	}
 
-	var owner common.Owner
+	var owner Owner
 	err = json.NewDecoder(resp.Body).Decode(&owner)
 	if err != nil {
 		return nil, err
 	}
 
 	if c.Cache != nil {
-		key := "user_" + username
 		c.Cache.Set(key, &owner, 5*time.Minute)
 	}
 
@@ -165,7 +165,7 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.O
 //   - username: The username of the EnkaNetwork user (must not be empty).
 //
 // Returns:
-//   - *Hoyos: A pointer to the list of hoyos if successful.
+//   - Hoyos: Map where the key is the hoyo hash and the value is the Hoyo struct.
 //   - error: An error if the request fails.
 //
 // Possible errors include:
@@ -181,15 +181,16 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*common.O
 //	    return
 //	}
 //	fmt.Println("Hoyos:", hoyos)
-func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (*Hoyos, error) {
+func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (Hoyos, error) {
 	if username == "" {
 		return nil, ErrInvalidUsername
 	}
 
+	key := fmt.Sprintf("user_%s_hoyos", username)
+
 	if c.Cache != nil {
-		key := "user_" + username + "_hoyos"
 		if cached, ok := c.Cache.Get(key); ok {
-			if hoyos, ok := cached.(*Hoyos); ok {
+			if hoyos, ok := cached.(Hoyos); ok {
 				return hoyos, nil
 			}
 		}
@@ -224,11 +225,10 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (*Hoy
 	}
 
 	if c.Cache != nil {
-		key := "user_" + username + "_hoyos"
 		c.Cache.Set(key, &hoyos, 5*time.Minute)
 	}
 
-	return &hoyos, nil
+	return hoyos, nil
 }
 
 // GetUserProfileHoyo fetches information about a specific Hoyo account.
@@ -269,8 +269,9 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 		return nil, ErrInvalidHoyoHash
 	}
 
+	key := fmt.Sprintf("user_%s_hoyos_%s", username, hoyo_hash)
+
 	if c.Cache != nil {
-		key := "user_" + username + "_hoyos_" + hoyo_hash
 		if cached, ok := c.Cache.Get(key); ok {
 			if hoyo, ok := cached.(*Hoyo); ok {
 				return hoyo, nil
@@ -307,7 +308,6 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 	}
 
 	if c.Cache != nil {
-		key := "user_" + username + "_hoyos_" + hoyo_hash
 		c.Cache.Set(key, &hoyo, 5*time.Minute)
 	}
 
@@ -335,19 +335,19 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 //   - hoyo_hash: The hash of the hoyo (must not be empty).
 //
 // Returns:
-//   - *Builds: A pointer to the builds data if successful.
+//   - AvatarBuildsMap: A map where the key is the avatarID and the value is a slice of builds for that character.
 //   - error: An error if the request fails, such as ErrInvalidUsername or ErrHoyoAccountBuildsNotFound.
 //
 // Example:
 //
 //	ctx := context.Background()
-//	builds, err := client.GetUserProfileHoyoBuilds(ctx, "Algoinde", "4Wjv2e")
+//	avatarBuilds, err := client.GetUserProfileHoyoBuilds(ctx, "Algoinde", "4Wjv2e")
 //	if err != nil {
 //	    fmt.Println("Error:", err)
 //	    return
 //	}
-//	fmt.Println("Builds:", builds)
-func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, hoyo_hash string) (*Builds, error) {
+//	fmt.Println("avatarBuilds:", avatarBuilds)
+func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, hoyo_hash string) (AvatarBuildsMap, error) {
 	if username == "" {
 		return nil, ErrInvalidUsername
 	}
@@ -356,10 +356,11 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 		return nil, ErrInvalidHoyoHash
 	}
 
+	key := fmt.Sprintf("user_%s_hoyos_%s_builds", username, hoyo_hash)
+
 	if c.Cache != nil {
-		key := "user_" + username + "_hoyos_" + hoyo_hash + "_builds"
 		if cached, ok := c.Cache.Get(key); ok {
-			if builds, ok := cached.(*Builds); ok {
+			if builds, ok := cached.(AvatarBuildsMap); ok {
 				return builds, nil
 			}
 		}
@@ -387,16 +388,15 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 		}
 	}
 
-	var builds Builds
+	var builds AvatarBuildsMap
 	err = json.NewDecoder(resp.Body).Decode(&builds)
 	if err != nil {
 		return nil, err
 	}
 
 	if c.Cache != nil {
-		key := "user_" + username + "_hoyos_" + hoyo_hash + "_builds"
 		c.Cache.Set(key, builds, 5*time.Minute)
 	}
 
-	return &builds, nil
+	return builds, nil
 }

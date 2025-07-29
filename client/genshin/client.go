@@ -134,8 +134,10 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 		return nil, ErrInvalidUIDFormat
 	}
 
+	key := fmt.Sprintf("genshin_%s", uid)
+
 	if c.Cache != nil {
-		if cached, ok := c.Cache.Get(uid); ok {
+		if cached, ok := c.Cache.Get(key); ok {
 			if profile, ok := cached.(*Profile); ok {
 				return profile, nil
 			}
@@ -145,7 +147,7 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 	url := fmt.Sprintf("%s/uid/%s", common.BaseURL, uid)
 	profile, err := c.fetchProfileWithRetry(ctx, url)
 	if err == nil && c.Cache != nil {
-		c.Cache.Set(uid, profile, time.Duration(profile.TTL)*time.Second)
+		c.Cache.Set(key, profile, time.Duration(profile.TTL)*time.Second)
 	}
 
 	return profile, err
@@ -189,8 +191,9 @@ func (c *Client) GetPlayerInfo(ctx context.Context, uid string) (*Profile, error
 		return nil, ErrInvalidUIDFormat
 	}
 
+	key := "genshin_" + uid + "_info"
+
 	if c.Cache != nil {
-		key := uid + "_info"
 		if cached, ok := c.Cache.Get(key); ok {
 			if profile, ok := cached.(*Profile); ok {
 				return profile, nil
@@ -201,9 +204,9 @@ func (c *Client) GetPlayerInfo(ctx context.Context, uid string) (*Profile, error
 	url := fmt.Sprintf("%s/uid/%s?info", common.BaseURL, uid)
 	profile, err := c.fetchProfileWithRetry(ctx, url)
 	if err == nil && c.Cache != nil {
-		key := uid + "_info"
 		c.Cache.Set(key, profile, time.Duration(profile.TTL)*time.Second)
 	}
+
 	return profile, err
 }
 

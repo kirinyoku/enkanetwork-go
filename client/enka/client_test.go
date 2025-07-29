@@ -50,9 +50,9 @@ func TestGetUserProfileNotFound(t *testing.T) {
 	}
 }
 
-// TestCompareJSONResponseGetUserProfile ensures that the JSON response from the API matches the JSON
+// TestGetUserProfile ensures that the JSON response from the API matches the JSON
 // generated from the Go structure returned by the client GetUserProfile method.
-func TestCompareJSONResponseGetUserProfile(t *testing.T) {
+func TestGetUserProfile(t *testing.T) {
 	if os.Getenv("RUN_INTEGRATION_TESTS") != "true" {
 		t.Skip("skipping integration test; set RUN_INTEGRATION_TESTS=true to run")
 	}
@@ -98,9 +98,9 @@ func TestCompareJSONResponseGetUserProfile(t *testing.T) {
 	}
 }
 
-// TestCompareJSONResponseGetUserProfileHoyos ensures that the JSON response from the API matches the JSON
+// TestGetUserProfileHoyos ensures that the JSON response from the API matches the JSON
 // generated from the Go structure returned by the client GetUserProfileHoyos method.
-func TestCompareJSONResponseGetUserProfileHoyos(t *testing.T) {
+func TestGetUserProfileHoyos(t *testing.T) {
 	if os.Getenv("RUN_INTEGRATION_TESTS") != "true" {
 		t.Skip("skipping integration test; set RUN_INTEGRATION_TESTS=true to run")
 	}
@@ -229,7 +229,7 @@ func TestGetUserProfileHoyoBuilds(t *testing.T) {
 
 	apiJSONBytes = common.RemoveTTLField(apiJSONBytes)
 
-	var apiData Builds
+	var apiData AvatarBuildsMap
 	err = json.Unmarshal(apiJSONBytes, &apiData)
 	if err != nil {
 		t.Fatalf("failed to unmarshal API JSON into struct: %v", err)
@@ -242,7 +242,7 @@ func TestGetUserProfileHoyoBuilds(t *testing.T) {
 
 	clientJSONBytes = common.RemoveTTLField(clientJSONBytes)
 
-	var clientData Builds
+	var clientData AvatarBuildsMap
 	err = json.Unmarshal(clientJSONBytes, &clientData)
 	if err != nil {
 		t.Fatalf("failed to unmarshal client marshaled JSON into struct: %v", err)
