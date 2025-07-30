@@ -25,7 +25,7 @@ Before using this library, ensure the following:
 ## Installation
 
 ```bash
-go install github.com/kirinyoku/enkanetwork-go@latest
+go get github.com/kirinyoku/enkanetwork-go@latest
 ```
 
 ---

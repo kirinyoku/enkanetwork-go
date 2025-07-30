@@ -27,7 +27,7 @@
 ## [0.2.0] - 2025-07-28
 ### Changed
 - Moved error definitions from `common` package to their respective game client packages.
-- Removed the `GetPlayerInfo` method from the `hsr` and `zzz` packages  .
+- Removed the `GetPlayerInfo` method from the `hsr` and `zzz` packages.
 - Updated documentation for all clients.
 
 ### Added
