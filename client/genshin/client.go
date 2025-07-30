@@ -1,31 +1,3 @@
-// Package genshin provides a simple client for interacting with the EnkaNetwork API
-// for fetching Genshin Impact player game profiles. It is designed to be user-friendly.
-//
-// The API provides data about players, such as their nickname, level, characters,
-// equipment, etc. This client simplifies access to this data with methods like
-// GetProfile and GetPlayerInfo.
-//
-// To use this package:
-//  1. Create a Client instance using NewClient, optionally providing a custom HTTP
-//     client, cache, and User-Agent string.
-//  2. Call methods like GetProfile to fetch player data.
-//  3. Handle errors returned by the methods, which provide clear information about
-//     issues such as invalid UID, player not found, or rate limit exceeded.
-//  4. Use a context to control request timeouts or cancellation as needed.
-//
-// Important rules for using the EnkaNetwork API:
-//   - Avoid mass requests or iterating through UIDs, as this may overload the API
-//     and result in rate limiting (HTTP 429).
-//   - Set a User-Agent header to identify the application, aiding the API provider
-//     in troubleshooting issues.
-//   - Cache responses locally using the TTL value returned by the API to minimize
-//     unnecessary requests, as cached responses still count toward rate limits.
-//   - If a rate limit (429) is encountered, the client retries up to three times,
-//     but code should be optimized to reduce requests.
-//
-// For more details, see the EnkaNetwork API documentation:
-//   - https://api.enka.network/#/api
-//   - https://github.com/EnkaNetwork/API-docs/blob/master/docs/gi/api.md
 package genshin
 
 import (
@@ -35,14 +7,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kirinyoku/enkanetwork-go/internal/common"
+	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
 
-// Client extends common.Client to provide Genshin-specific functionality for player
+// Client extends core.Client to provide Genshin-specific functionality for player
 // profile requests. It serves as the primary tool for interacting with the EnkaNetwork
 // API in this package.
 //
-// The Client struct embeds common.Client, inheriting shared features, including:
+// The Client struct embeds core.Client, inheriting shared features, including:
 //   - An HTTP client for sending API requests.
 //   - An optional cache to store responses and reduce API calls.
 //   - A User-Agent string to identify the application in requests.
@@ -51,7 +23,7 @@ import (
 // settings. Once created, use the Client to call methods like GetProfile to fetch
 // player data.
 type Client struct {
-	*common.Client // Embeds common.Client for shared HTTP and caching functionality
+	*core.Client // Embeds core.Client for shared HTTP and caching functionality
 }
 
 // NewClient creates a new Genshin Impact API client for making requests.
@@ -80,9 +52,9 @@ type Client struct {
 //	// Create a client with a custom HTTP client
 //	customClient := &http.Client{Timeout: 20 * time.Second}
 //	client := genshin.NewClient(customClient, nil, "my-app/1.0")
-func NewClient(httpClient *http.Client, cache common.Cache, userAgent string) *Client {
+func NewClient(httpClient *http.Client, cache core.Cache, userAgent string) *Client {
 	return &Client{
-		Client: common.NewClient(httpClient, cache, userAgent),
+		Client: core.NewClient(httpClient, cache, userAgent),
 	}
 }
 
@@ -130,7 +102,7 @@ func NewClient(httpClient *http.Client, cache common.Cache, userAgent string) *C
 //	fmt.Println("Player Nickname:", profile.PlayerInfo.Nickname)
 //	fmt.Println("World Level:", profile.PlayerInfo.WorldLevel)
 func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
-	if !common.IsValidUID(uid) {
+	if !core.IsValidUID(uid) {
 		return nil, ErrInvalidUIDFormat
 	}
 
@@ -144,7 +116,7 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 		}
 	}
 
-	url := fmt.Sprintf("%s/uid/%s", common.BaseURL, uid)
+	url := fmt.Sprintf("%s/uid/%s", core.BaseURL, uid)
 	profile, err := c.fetchProfileWithRetry(ctx, url)
 	if err == nil && c.Cache != nil {
 		c.Cache.Set(key, profile, time.Duration(profile.TTL)*time.Second)
@@ -187,7 +159,7 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 //	}
 //	fmt.Println("Player Nickname:", profile.PlayerInfo.Nickname)
 func (c *Client) GetPlayerInfo(ctx context.Context, uid string) (*Profile, error) {
-	if !common.IsValidUID(uid) {
+	if !core.IsValidUID(uid) {
 		return nil, ErrInvalidUIDFormat
 	}
 
@@ -201,7 +173,7 @@ func (c *Client) GetPlayerInfo(ctx context.Context, uid string) (*Profile, error
 		}
 	}
 
-	url := fmt.Sprintf("%s/uid/%s?info", common.BaseURL, uid)
+	url := fmt.Sprintf("%s/uid/%s?info", core.BaseURL, uid)
 	profile, err := c.fetchProfileWithRetry(ctx, url)
 	if err == nil && c.Cache != nil {
 		c.Cache.Set(key, profile, time.Duration(profile.TTL)*time.Second)

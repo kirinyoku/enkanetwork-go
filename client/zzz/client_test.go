@@ -16,7 +16,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/kirinyoku/enkanetwork-go/internal/common"
+	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
 
 // TestMain sets up any global state for the integration tests.
@@ -89,8 +89,8 @@ func TestGetProfile(t *testing.T) {
 		t.Fatalf("failed to read API response: %v", err)
 	}
 
-	apiJSON = common.RemoveTTLField(apiJSON)
-	clientJSON = common.RemoveTTLField(clientJSON)
+	apiJSON = core.RemoveTTLField(apiJSON)
+	clientJSON = core.RemoveTTLField(clientJSON)
 
 	if !cmp.Equal(apiJSON, clientJSON) {
 		t.Errorf("JSON responses do not match. API JSON: %s\nClient JSON: %s", apiJSON, clientJSON)

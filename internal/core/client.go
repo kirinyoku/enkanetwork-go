@@ -1,17 +1,6 @@
-// Package common provides shared functionality for interacting with the EnkaNetwork API.
-// It is an internal package used by the game-specific client for Genshin, HSR, and ZZZ.
-// This package is not meant to be used directly by users of the library. Instead, you should use the
-// game-specific packages (client/genshin, client/hsr, client/zzz, client/enka) to access the API.
-//
-// The package defines:
-//   - A base URL for the EnkaNetwork API.
-//   - A Cache interface for storing API responses to reduce the number of requests.
-//   - A Client struct and NewClient function to set up HTTP requests with customizable
-//     settings like timeouts and caching.
-package common
+package core
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 )
@@ -22,21 +11,6 @@ import (
 const (
 	BaseURL = "https://enka.network/api"
 )
-
-// Cache defines an interface for caching API responses.
-// Caching helps reduce the number of requests to the API, which is important because
-// even cached responses from the API count toward rate limits. Users can implement
-// this interface to provide their own caching mechanism, such as an in-memory cache
-// or a database.
-type Cache interface {
-	// Get retrieves a value from the cache by key.
-	// Returns the cached value and true if found,
-	// or nil and false if not found or expired.
-	Get(key string) (any, bool)
-	// Set stores a value in the cache with the given key and expiration time.
-	// The expiration time determines how long the value remains valid.
-	Set(key string, value any, expiration time.Duration)
-}
 
 // Client represents an EnkaNetwork API client used to make requests to the API.
 // It holds an HTTP client for sending requests, an optional cache for storing
@@ -90,39 +64,4 @@ func NewClient(httpClient *http.Client, cache Cache, userAgent string) *Client {
 		Cache:      cache,
 		UserAgent:  userAgent,
 	}
-}
-
-// isValidUID checks if the provided UID is a valid 9-digit number.
-// Genshin and HSR UID can only be 9 digits (e.g., "618285856").
-// This function is used internally to validate UIDs before making requests.
-//
-// Parameters:
-//   - uid: The UID string to validate.
-//
-// Returns:
-//   - true if the UID is a 9-digit number, false otherwise.
-func IsValidUID(uid string) bool {
-	if len(uid) != 9 {
-		return false
-	}
-	for _, r := range uid {
-		if r < '0' || r > '9' {
-			return false
-		}
-	}
-	return true
-}
-
-// removeTTLField removes the TTL field from the JSON response.
-// This is used for tests to ensure the response is consistent.
-func RemoveTTLField(jsonBytes []byte) []byte {
-	var profile map[string]interface{}
-	if err := json.Unmarshal(jsonBytes, &profile); err != nil {
-		return jsonBytes
-	}
-
-	delete(profile, "ttl")
-
-	newJSON, _ := json.Marshal(profile)
-	return newJSON
 }

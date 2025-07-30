@@ -1,6 +1,6 @@
 package zzz
 
-import "github.com/kirinyoku/enkanetwork-go/internal/common"
+import "github.com/kirinyoku/enkanetwork-go/models"
 
 // ------------------------------- IMPORTANT --------------------------------------
 // For detailed information on properties, refer to the EnkaNetwork API — Zenless
@@ -22,7 +22,7 @@ type Profile struct {
 	//   2. The user has added their UID to their profile;
 	//   3. The user has verified that the UID belongs to them;
 	//   4. The user has set their profile visibility to "public"
-	Owner *common.Owner `json:"owner,omitempty"`
+	Owner *models.Owner `json:"owner,omitempty"`
 	// UID is the player's UID in Zenless Zone Zero.
 	UID string `json:"uid,omitempty"`
 }

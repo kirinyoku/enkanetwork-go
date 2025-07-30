@@ -6,7 +6,7 @@ import (
 	"github.com/kirinyoku/enkanetwork-go/client/genshin"
 	"github.com/kirinyoku/enkanetwork-go/client/hsr"
 	"github.com/kirinyoku/enkanetwork-go/client/zzz"
-	"github.com/kirinyoku/enkanetwork-go/internal/common"
+	"github.com/kirinyoku/enkanetwork-go/models"
 )
 
 // AvatarBuildsMap is a map where the key is the avatarID and the value is a slice
@@ -118,7 +118,7 @@ type Hoyo struct {
 	UIDPublic   bool               `json:"uid_public,omitempty"`   // Whether the UID is public
 	Public      bool               `json:"public,omitempty"`       // Whether the Hoyo account is public
 	Verified    bool               `json:"verified,omitempty"`     // Whether the Hoyo account is verified
-	PlayerInfo  *common.PlayerInfo `json:"player_info,omitempty"`  // Player information for the account
+	PlayerInfo  *models.PlayerInfo `json:"player_info,omitempty"`  // Player information for the account
 	Hash        string             `json:"hash,omitempty"`         // Hash of the game account
 	Region      string             `json:"region,omitempty"`       // Region of the game account
 	AvatarOrder map[string]int     `json:"avatar_order,omitempty"` // Order of the characters in the game account

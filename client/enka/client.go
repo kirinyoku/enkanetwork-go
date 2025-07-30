@@ -1,8 +1,3 @@
-// Package enka provides functionality for interacting with the EnkaNetwork API to
-// fetch user profiles from the EnkaNetwork platform.
-//
-// The package ensures efficient requests through caching and provides clear, easy-to-handle
-// errors for seamless integration into applications.
 package enka
 
 import (
@@ -12,14 +7,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kirinyoku/enkanetwork-go/internal/common"
+	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
 
-// Client extends common.Client to provide Enka-specific functionality for user profile
+// Client extends core.Client to provide Enka-specific functionality for user profile
 // requests. It serves as the primary tool for interacting with the EnkaNetwork API in
 // this package.
 //
-// The Client struct embeds common.Client, inheriting shared features, including:
+// The Client struct embeds core.Client, inheriting shared features, including:
 // - An HTTP client for sending API requests.
 // - An optional cache to store responses and reduce API calls.
 // - A User-Agent string to identify the application in requests.
@@ -28,7 +23,7 @@ import (
 // settings. Once created, use the Client to call methods like GetUserProfile to fetch
 // user data.
 type Client struct {
-	*common.Client // Embeds common.Client for shared HTTP and caching functionality
+	*core.Client // Embeds core.Client for shared HTTP and caching functionality
 }
 
 // NewClient creates a new Enka API client for making requests.
@@ -57,9 +52,9 @@ type Client struct {
 //	// Create a client with a custom HTTP client
 //	customClient := &http.Client{Timeout: 20 * time.Second}
 //	client := enka.NewClient(customClient, nil, "my-app/1.0")
-func NewClient(httpClient *http.Client, cache common.Cache, userAgent string) *Client {
+func NewClient(httpClient *http.Client, cache core.Cache, userAgent string) *Client {
 	return &Client{
-		Client: common.NewClient(httpClient, cache, userAgent),
+		Client: core.NewClient(httpClient, cache, userAgent),
 	}
 }
 
@@ -114,7 +109,7 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*Owner, e
 		}
 	}
 
-	url := fmt.Sprintf("%s/profile/%s", common.BaseURL, username)
+	url := fmt.Sprintf("%s/profile/%s", core.BaseURL, username)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -196,7 +191,7 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (Hoyo
 		}
 	}
 
-	url := fmt.Sprintf("%s/profile/%s/hoyos/", common.BaseURL, username)
+	url := fmt.Sprintf("%s/profile/%s/hoyos/", core.BaseURL, username)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -279,7 +274,7 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 		}
 	}
 
-	url := fmt.Sprintf("%s/profile/%s/hoyos/%s/?format=json", common.BaseURL, username, hoyo_hash)
+	url := fmt.Sprintf("%s/profile/%s/hoyos/%s/?format=json", core.BaseURL, username, hoyo_hash)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -366,7 +361,7 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 		}
 	}
 
-	url := fmt.Sprintf("%s/profile/%s/hoyos/%s/builds/", common.BaseURL, username, hoyo_hash)
+	url := fmt.Sprintf("%s/profile/%s/hoyos/%s/builds/", core.BaseURL, username, hoyo_hash)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err

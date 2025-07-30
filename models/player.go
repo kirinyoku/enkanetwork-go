@@ -1,7 +1,4 @@
-// Package common provides shared data structures and models for the EnkaNetwork API,
-// representing player information and metadata across Genshin Impact, Honkai: Star Rail,
-// and Zenless Zone Zero.
-package common
+package models
 
 // PlayerInfo contains basic information about the player's game account from their showcase.
 type PlayerInfo struct {
@@ -121,63 +118,4 @@ type PrivacySettingInfo struct {
 	DisplayCollection   bool `json:"displayCollection,omitempty"`   // Whether collections are displayed
 	DisplayRecordTeam   bool `json:"displayRecordTeam,omitempty"`   // Whether the record team is displayed
 	DisplayOnlineStatus bool `json:"displayOnlineStatus,omitempty"` // Whether online status is displayed
-}
-
-// AvatarDetail contains detailed character information for Honkai: Star Rail
-type AvatarDetail struct {
-	Pos           int         `json:"pos,omitempty"`           // Character position
-	Rank          int         `json:"rank,omitempty"`          // Character rank
-	Level         int         `json:"level,omitempty"`         // Character level
-	Assist        int         `json:"_assist,omitempty"`       // Assist status
-	AvatarID      int         `json:"avatarId,omitempty"`      // Character ID
-	Equipment     *Equipment  `json:"equipment,omitempty"`     // Equipped equipment
-	Promotion     int         `json:"promotion,omitempty"`     // Promotion level
-	RelicList     []Relic     `json:"relicList,omitempty"`     // List of equipped relics
-	SkillTreeList []SkillTree `json:"skillTreeList,omitempty"` // List of skill tree nodes
-}
-
-// Equipment contains information about a character’s equipment in Honkai: Star Rail.
-type Equipment struct {
-	TID       int   `json:"tid,omitempty"`       // Equipment type ID
-	Rank      int   `json:"rank,omitempty"`      // Equipment rank
-	Flat      *Flat `json:"_flat,omitempty"`     // Detailed equipment data
-	Level     int   `json:"level,omitempty"`     // Equipment level
-	Promotion int   `json:"promotion,omitempty"` // Promotion level
-}
-
-// Flat contains detailed metadata for equipment or relics in Honkai: Star Rail.
-type Flat struct {
-	Props   []Prop `json:"props,omitempty"`   // List of properties
-	Name    string `json:"name,omitempty"`    // Equipment or relic name
-	SetID   int    `json:"setID,omitempty"`   // Set ID
-	SetName string `json:"setName,omitempty"` // Set name
-}
-
-// Prop represents a property of equipment or relics.
-type Prop struct {
-	Type  string  `json:"type,omitempty"`  // Property type
-	Value float64 `json:"value,omitempty"` // Property value
-}
-
-// Relic contains information about a relic in Honkai: Star Rail.
-type Relic struct {
-	TID          int        `json:"tid,omitempty"`          // Relic type ID
-	Type         int        `json:"type,omitempty"`         // Relic type
-	Flat         *Flat      `json:"_flat,omitempty"`        // Detailed relic data
-	Level        int        `json:"level,omitempty"`        // Relic level
-	MainAffixID  int        `json:"mainAffixId,omitempty"`  // Main affix ID
-	SubAffixList []SubAffix `json:"subAffixList,omitempty"` // List of sub-affixes
-}
-
-// SubAffix represents a sub-affix of a relic in Honkai: Star Rail
-type SubAffix struct {
-	Cnt     int `json:"cnt,omitempty"`     // Sub-affix count
-	Step    int `json:"step,omitempty"`    // Sub-affix step
-	AffixID int `json:"affixId,omitempty"` // Sub-affix ID
-}
-
-// SkillTree represents a skill tree node for a character in Honkai: Star Rail
-type SkillTree struct {
-	Level   int `json:"level,omitempty"`   // Node level
-	PointID int `json:"pointId,omitempty"` // Node point ID
 }

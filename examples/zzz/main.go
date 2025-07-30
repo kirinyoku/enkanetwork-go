@@ -78,7 +78,7 @@ func main() {
 	client := zzz.NewClient(httpClient, cache, "enkanetwork-go/1.0")
 
 	// Define the UID of the player to fetch.
-	const uid = "618285856"
+	const uid = "1504687050"
 
 	// Fetch the full Profile, which includes basic player info and characters showcase.
 	profile, err := client.GetProfile(ctx, uid)

@@ -16,7 +16,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/kirinyoku/enkanetwork-go/internal/common"
+	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
 
 // TestMain sets up any global state for the integration tests.
@@ -89,8 +89,8 @@ func TestGetUserProfile(t *testing.T) {
 		t.Fatalf("failed to read API response: %v", err)
 	}
 
-	apiJSON = common.RemoveTTLField(apiJSON)
-	clientJSON = common.RemoveTTLField(clientJSON)
+	apiJSON = core.RemoveTTLField(apiJSON)
+	clientJSON = core.RemoveTTLField(clientJSON)
 
 	// Compare JSON responses
 	if !cmp.Equal(apiJSON, clientJSON) {
@@ -137,8 +137,8 @@ func TestGetUserProfileHoyos(t *testing.T) {
 		t.Fatalf("failed to read API response: %v", err)
 	}
 
-	apiJSON = common.RemoveTTLField(apiJSON)
-	clientJSON = common.RemoveTTLField(clientJSON)
+	apiJSON = core.RemoveTTLField(apiJSON)
+	clientJSON = core.RemoveTTLField(clientJSON)
 
 	// Compare JSON responses
 	if !cmp.Equal(apiJSON, clientJSON) {
@@ -185,8 +185,8 @@ func TestGetUserProfileHoyo(t *testing.T) {
 		t.Fatalf("failed to read API response: %v", err)
 	}
 
-	apiJSON = common.RemoveTTLField(apiJSON)
-	clientJSON = common.RemoveTTLField(clientJSON)
+	apiJSON = core.RemoveTTLField(apiJSON)
+	clientJSON = core.RemoveTTLField(clientJSON)
 
 	if !cmp.Equal(apiJSON, clientJSON) {
 		t.Errorf("JSON responses do not match. API JSON: %s\nClient JSON: %s", apiJSON, clientJSON)
@@ -227,7 +227,7 @@ func TestGetUserProfileHoyoBuilds(t *testing.T) {
 		t.Fatalf("failed to read API response: %v", err)
 	}
 
-	apiJSONBytes = common.RemoveTTLField(apiJSONBytes)
+	apiJSONBytes = core.RemoveTTLField(apiJSONBytes)
 
 	var apiData AvatarBuildsMap
 	err = json.Unmarshal(apiJSONBytes, &apiData)
@@ -240,7 +240,7 @@ func TestGetUserProfileHoyoBuilds(t *testing.T) {
 		t.Fatalf("failed to marshal client response to JSON: %v", err)
 	}
 
-	clientJSONBytes = common.RemoveTTLField(clientJSONBytes)
+	clientJSONBytes = core.RemoveTTLField(clientJSONBytes)
 
 	var clientData AvatarBuildsMap
 	err = json.Unmarshal(clientJSONBytes, &clientData)

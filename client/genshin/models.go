@@ -1,8 +1,6 @@
 package genshin
 
-import (
-	"github.com/kirinyoku/enkanetwork-go/internal/common"
-)
+import "github.com/kirinyoku/enkanetwork-go/models"
 
 // ------------------------------- IMPORTANT --------------------------------------
 // For detailed information on properties, refer to the EnkaNetwork API — Genshin
@@ -14,7 +12,7 @@ import (
 // EnkaNetwork API for Genshin Impact.
 type Profile struct {
 	// PlayerInfo contains basic information about the game account from the player's showcase
-	PlayerInfo common.PlayerInfo `json:"playerInfo"`
+	PlayerInfo models.PlayerInfo `json:"playerInfo"`
 	// AvatarInfoList contains detailed information for each character in the showcase.
 	// If missing, the showcase is either hidden by the player or contains no characters.
 	// The GetPlayerInfo method always returns AvatarInfoList as an empty slice.
@@ -25,7 +23,7 @@ type Profile struct {
 	//   2. The user has added their UID to their profile;
 	//   3. The user has verified that the UID belongs to them;
 	//   4. The user has set their profile visibility to "public"
-	Owner *common.Owner `json:"owner,omitempty"`
+	Owner *models.Owner `json:"owner,omitempty"`
 	// TTL indicates the seconds remaining until the next request to the game.
 	// Until the TTL expires, the endpoint returns cached data — but such requests still
 	// count toward the rate limit. Cache data locally and use the TTL to avoid

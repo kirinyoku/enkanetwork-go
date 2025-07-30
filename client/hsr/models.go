@@ -1,6 +1,6 @@
 package hsr
 
-import "github.com/kirinyoku/enkanetwork-go/internal/common"
+import "github.com/kirinyoku/enkanetwork-go/models"
 
 // Profile represents the root structure of the response containing player information
 // and character data. It serves as the main container for all data returned by the
@@ -18,7 +18,7 @@ type Profile struct {
 	//   2. The user has added their UID to their profile;
 	//   3. The user has verified that the UID belongs to them;
 	//   4. The user has set their profile visibility to "public"
-	Owner *common.Owner `json:"owner,omitempty"`
+	Owner *models.Owner `json:"owner,omitempty"`
 	// UID is the unique identifier for the player's account
 	UID string `json:"uid,omitempty"`
 }
@@ -99,7 +99,7 @@ type SubAffix struct {
 
 // Flat contains flat data for relics and equipment.
 type Flat struct {
-	Props   []common.Prop `json:"props,omitempty"`   // List of properties
+	Props   []models.Prop `json:"props,omitempty"`   // List of properties
 	SetName string        `json:"setName,omitempty"` // Name of the set
 	SetID   int           `json:"setID,omitempty"`   // ID of the set
 }
@@ -113,7 +113,7 @@ type SkillTree struct {
 // EquipmentFlat contains flat data for equipment.
 type EquipmentFlat struct {
 	Name  string        `json:"name,omitempty"`  // Name of the equipment
-	Props []common.Prop `json:"props,omitempty"` // List of properties
+	Props []models.Prop `json:"props,omitempty"` // List of properties
 }
 
 // Equipment represents a character's equipment (weapon).
