@@ -13,9 +13,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
 
@@ -93,7 +93,7 @@ func TestGetUserProfile(t *testing.T) {
 	clientJSON = core.RemoveTTLField(clientJSON)
 
 	// Compare JSON responses
-	if !cmp.Equal(apiJSON, clientJSON) {
+	if !reflect.DeepEqual(apiJSON, clientJSON) {
 		t.Errorf("JSON responses do not match. API JSON: %s\nClient JSON: %s", apiJSON, clientJSON)
 	}
 }
@@ -141,7 +141,7 @@ func TestGetUserProfileHoyos(t *testing.T) {
 	clientJSON = core.RemoveTTLField(clientJSON)
 
 	// Compare JSON responses
-	if !cmp.Equal(apiJSON, clientJSON) {
+	if !reflect.DeepEqual(apiJSON, clientJSON) {
 		t.Errorf("JSON responses do not match. API JSON: %s\nClient JSON: %s", apiJSON, clientJSON)
 	}
 }
@@ -188,7 +188,7 @@ func TestGetUserProfileHoyo(t *testing.T) {
 	apiJSON = core.RemoveTTLField(apiJSON)
 	clientJSON = core.RemoveTTLField(clientJSON)
 
-	if !cmp.Equal(apiJSON, clientJSON) {
+	if !reflect.DeepEqual(apiJSON, clientJSON) {
 		t.Errorf("JSON responses do not match. API JSON: %s\nClient JSON: %s", apiJSON, clientJSON)
 	}
 }
@@ -248,7 +248,7 @@ func TestGetUserProfileHoyoBuilds(t *testing.T) {
 		t.Fatalf("failed to unmarshal client marshaled JSON into struct: %v", err)
 	}
 
-	if !cmp.Equal(apiData, clientData) {
+	if !reflect.DeepEqual(apiData, clientData) {
 		t.Errorf("JSON responses do not match. API JSON: %s\nClient JSON: %s", apiJSONBytes, clientJSONBytes)
 	}
 }

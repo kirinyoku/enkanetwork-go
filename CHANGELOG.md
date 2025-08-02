@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.1] - 2025-08-02
+### Changed
+- The `github.com/google/go-cmp` package has been removed from dependencies and replaced with the standard library package `reflect`.
+
 ## [0.5.0] - 2025-08-02
 ### Added
 - New generic `fetcher` package in `internal/core/fetcher` for handling HTTP requests with retry logic.

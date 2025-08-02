@@ -13,9 +13,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
 
@@ -79,7 +79,7 @@ func TestGetProfile(t *testing.T) {
 	apiJSON = core.RemoveTTLField(apiJSON)
 	clientJSON = core.RemoveTTLField(clientJSON)
 
-	if !cmp.Equal(apiJSON, clientJSON) {
+	if !reflect.DeepEqual(apiJSON, clientJSON) {
 		t.Errorf("JSON responses do not match. API JSON: %s\nClient JSON: %s", apiJSON, clientJSON)
 	}
 }

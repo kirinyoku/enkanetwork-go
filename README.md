@@ -15,7 +15,6 @@ A lightweight, type-safe Go wrapper for the [EnkaNetwork API](https://api.enka.n
 
 Before using this library, ensure the following:
 
-- **Go Version**: Go 1.18 or later.
 - **API Familiarity**: Review the official EnkaNetwork API documentation:
   - [EnkaNetwork API Documentation](https://api.enka.network/#/api)
   - [Genshin Impact API Details](https://github.com/EnkaNetwork/API-docs/blob/master/docs/gi/api.md)
