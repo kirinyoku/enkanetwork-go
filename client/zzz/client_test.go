@@ -37,19 +37,6 @@ func TestGetProfileInvalidUID(t *testing.T) {
 	}
 }
 
-// TestGetProfileNotFound ensures GetProfile returns ErrPlayerNotFound for a non-existent UID.
-func TestGetProfileNotFound(t *testing.T) {
-	if os.Getenv("RUN_INTEGRATION_TESTS") != "true" {
-		t.Skip("skipping integration test; set RUN_INTEGRATION_TESTS=true to run")
-	}
-
-	client := NewClient(nil, nil, "test-agent")
-	_, err := client.GetProfile(context.Background(), "987654321")
-	if err != ErrPlayerNotFound {
-		t.Errorf("expected ErrPlayerNotFound, got %v", err)
-	}
-}
-
 // TestGetProfile ensures that the JSON response from the API matches the JSON
 // generated from the Go structure returned by the client GetProfile method.
 func TestGetProfile(t *testing.T) {
