@@ -66,16 +66,19 @@ type AvatarData struct {
 	TalentLevel          int            `json:"TalentLevel"`          // Agent mindscape level
 	SkinID               int            `json:"SkinId"`               // Agent skin ID
 	CoreSkillEnhancement int            `json:"CoreSkillEnhancement"` // Core skill unlocked enhancements (A, B, C, D, E, F)
-	TalentToggles        []bool         `json:"TalentToggles"`        // Mindscape Cinema visual toggles
+	TalentToggleList     []bool         `json:"TalentToggleList"`     // Mindscape Cinema visual toggles
 	WeaponEffectState    int            `json:"WeaponEffectState"`    // W-Engine signature special effect state (0: None, 1: OFF, 2: ON)
-	IsHidden             bool           `json:"IsHidden,omitempty"`   // Whether the agent is hidden.
-	ClaimedRewards       []int          `json:"ClaimedRewards"`       // Agent promotion rewards
+	ClaimedRewardList    []int          `json:"ClaimedRewardList"`    // Agent promotion rewards
 	ObtainmentTimestamp  int64          `json:"ObtainmentTimestamp"`  // Agent obtainment timestamp
 	Weapon               *Weapon        `json:"Weapon"`               // Equipped W-Engine
 	SkillLevelList       []SkillLevel   `json:"SkillLevelList"`       // List of agent skill levels (see definitions: https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md#skills for indexes)
 	EquippedList         []EquippedItem `json:"EquippedList"`         // List of equipped Drive Discs
 	IsFavorite           bool           `json:"IsFavorite"`           // Whether the agent is marked as favorite
 	WeaponUID            int            `json:"WeaponUid"`            // W-Engine UID
+	// I couldn't find any information about these fields in the Enka API documentation.
+	// If you have any information, please let me know.
+	IsUpgradeUnlocked bool `json:"IsUpgradeUnlocked"` // ??
+	UpgradeID         int  `json:"UpgradeId"`         // ??
 }
 
 // SkillLevel contains information about an agent’s skill level.
@@ -132,9 +135,10 @@ type SocialDetail struct {
 
 // Medal contains information about a badge.
 type Medal struct {
-	Value     int `json:"Value"`     // Progress number
-	MedalIcon int `json:"MedalIcon"` // Icon ID
-	MedalType int `json:"MedalType"` // Badge type (see https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md#badge-type)
+	Value      int `json:"Value"`      // Progress number
+	MedalIcon  int `json:"MedalIcon"`  // Icon ID
+	MedalType  int `json:"MedalType"`  // Badge type (see https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md#badge-type)
+	MedalScore int `json:"MedalScore"` // Badge score
 }
 
 // ProfileDetail contains detailed player profile information.
@@ -152,9 +156,11 @@ type ProfileDetail struct {
 
 // TitleInfo contains title-related information.
 type TitleInfo struct {
-	Title       int `json:"Title"`       // Title ID
-	HFKHLLBMPHM any `json:"HFKHLLBMPHM"` // ?????????
-	ECJPEHHALAO int `json:"ECJPEHHALAO"` // ?????????
+	// I couldn't find any information about these fields in the Enka API documentation.
+	// If you have any information, please let me know.
+	Title     int   `json:"Title"`     // ??
+	FullTitle int   `json:"FullTitle"` // ??
+	Args      []any `json:"Args"`      // ??
 }
 
 // Settings represents build-specific configuration options.
