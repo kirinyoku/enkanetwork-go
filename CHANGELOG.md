@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.5.0] - 2025-08-02
+### Added
+- New generic `fetcher` package in `internal/core/fetcher` for handling HTTP requests with retry logic.
+- Centralized error types in `internal/core/errors` for consistent error handling.
+
+### Changed
+- Refactored all client packages to use the new generic fetcher.
+- Updated ZZZ client models:
+  - Renamed `TalentToggles` to `TalentToggleList` in `AvatarData`.
+  - Renamed `ClaimedRewards` to `ClaimedRewardList` in `AvatarData`.
+  - Added `IsUpgradeUnlocked`, `UpgradeID` to `AvatarData`.
+  - Added `MedalScore` to `Medal`.
+- Improved error handling across all clients to use centralized error types.
+
+### Removed
+- Removed duplicate retry logic from individual client implementations.
+- Removed integration test case `TestGetProfileNotFound` from ZZZ client.
+
 ## [0.4.0] - 2025-07-30
 ### Changed
 - Major codebase restructuring by removing the internal/common package, as its functionality is now distributed between models and internal/core packages.
