@@ -2,12 +2,12 @@ package zzz
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
+	"github.com/kirinyoku/enkanetwork-go/internal/core/fetcher"
 )
 
 // Client extends core.Client to provide ZZZ-specific functionality for player
@@ -24,6 +24,7 @@ import (
 // player data.
 type Client struct {
 	*core.Client // Embeds core.Client for shared HTTP and caching functionality
+	fetcher      *fetcher.Fetcher[Profile]
 }
 
 // NewClient creates a new Zenless Zone Zero API client for making requests.
@@ -53,8 +54,11 @@ type Client struct {
 //	customClient := &http.Client{Timeout: 20 * time.Second}
 //	client := zzz.NewClient(customClient, nil, "my-app/1.0")
 func NewClient(httpClient *http.Client, cache core.Cache, userAgent string) *Client {
+	c := core.NewClient(httpClient, cache, userAgent)
+
 	return &Client{
-		Client: core.NewClient(httpClient, cache, userAgent),
+		Client:  c,
+		fetcher: fetcher.NewFetcher[Profile](c.HTTPClient, c.UserAgent),
 	}
 }
 
@@ -115,104 +119,12 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 	}
 
 	url := fmt.Sprintf("%s/zzz/uid/%s", core.BaseURL, uid)
-	profile, err := c.fetchProfileWithRetry(ctx, url)
+	profile, err := c.fetcher.FetchWithRetry(ctx, url)
 	if err == nil && c.Cache != nil {
 		c.Cache.Set(key, profile, time.Duration(profile.TTL)*time.Second)
 	}
 
 	return profile, err
-}
-
-// fetchProfileWithRetry is an internal helper function that fetches a player profile
-// from the given URL with retry logic for handling rate limits (HTTP 429).
-// It is used by GetProfile and GetPlayerInfo to make HTTP requests and process responses.
-//
-// The function:
-//  1. Creates an HTTP request with the provided context and User-Agent header.
-//  2. Sends the request and checks the response status code.
-//  3. If the status is 200 (OK), decodes the response into a Profile struct.
-//  4. If the status is 429 (Too Many Requests), retries up to 3 times, waiting for
-//     the duration specified in the Retry-After header or 5 seconds by default.
-//  5. For other status codes (400, 404, 424, 500, 503), returns the appropriate error.
-//  6. If all retries fail due to rate limiting, returns an ErrRateLimited error.
-//
-// Parameters:
-//   - ctx: A context.Context to control the request's timeout or cancellation.
-//   - url: The URL to fetch the profile from.
-//
-// Returns:
-//   - *Profile: A pointer to the player's profile if successful.
-//   - error: An error if the request fails or retries are exhausted.
-//
-// Error handling includes specific error types for common HTTP status codes:
-//   - 400: Invalid UID format
-//   - 404: Player not found
-//   - 424: Server under maintenance
-//   - 429: Rate limited (handled automatically with retries)
-//   - 500: Internal server error
-//   - 503: Service unavailable
-func (c *Client) fetchProfileWithRetry(ctx context.Context, url string) (*Profile, error) {
-	const maxRetries = 3
-	var profile Profile
-
-	for attempt := 0; attempt < maxRetries; attempt++ {
-		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		req.Header.Set("User-Agent", c.UserAgent)
-		resp, err := c.HTTPClient.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode == http.StatusOK {
-			err = json.NewDecoder(resp.Body).Decode(&profile)
-			if err != nil {
-				return nil, fmt.Errorf("failed to decode profile: %w", err)
-			}
-			return &profile, nil
-		}
-
-		if resp.StatusCode == http.StatusTooManyRequests {
-			retryAfter := resp.Header.Get("Retry-After")
-			var delay time.Duration
-
-			if retryAfter != "" {
-				if seconds, err := time.ParseDuration(retryAfter + "s"); err == nil {
-					delay = seconds
-				} else {
-					delay = 5 * time.Second
-				}
-			} else {
-				delay = 5 * time.Second
-			}
-			select {
-			case <-time.After(delay):
-			case <-ctx.Done():
-				return nil, ctx.Err()
-			}
-		} else {
-			switch resp.StatusCode {
-			case 400:
-				return nil, ErrInvalidUIDFormat
-			case 404:
-				return nil, ErrPlayerNotFound
-			case 424:
-				return nil, ErrServerMaintenance
-			case 500:
-				return nil, ErrServerError
-			case 503:
-				return nil, ErrServiceUnavailable
-			default:
-				return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
-			}
-		}
-	}
-
-	return nil, fmt.Errorf("rate limited: %w", ErrRateLimited)
 }
 
 // isValidUID checks if the provided UID is a valid 9 or 10-digit number.

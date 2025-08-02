@@ -1,12 +1,12 @@
 package hsr
 
-import "errors"
+import "github.com/kirinyoku/enkanetwork-go/internal/core/errors"
 
 var (
-	ErrInvalidUIDFormat   = errors.New("invalid UID format")
-	ErrPlayerNotFound     = errors.New("player not found")
-	ErrServerMaintenance  = errors.New("server maintenance")
-	ErrServerError        = errors.New("server error")
-	ErrServiceUnavailable = errors.New("service unavailable")
-	ErrRateLimited        = errors.New("rate limited")
+	ErrInvalidUIDFormat   = errors.ErrInvalidUIDFormat
+	ErrPlayerNotFound     = errors.ErrPlayerNotFound
+	ErrServerMaintenance  = errors.ErrServerMaintenance
+	ErrServerError        = errors.ErrServerError
+	ErrServiceUnavailable = errors.ErrServiceUnavailable
+	ErrRateLimited        = errors.ErrRateLimited
 )

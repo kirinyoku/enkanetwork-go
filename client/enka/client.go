@@ -2,12 +2,13 @@ package enka
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
+	"github.com/kirinyoku/enkanetwork-go/internal/core/errors"
+	"github.com/kirinyoku/enkanetwork-go/internal/core/fetcher"
 )
 
 // Client extends core.Client to provide Enka-specific functionality for user profile
@@ -23,7 +24,11 @@ import (
 // settings. Once created, use the Client to call methods like GetUserProfile to fetch
 // user data.
 type Client struct {
-	*core.Client // Embeds core.Client for shared HTTP and caching functionality
+	*core.Client   // Embeds core.Client for shared HTTP and caching functionality
+	profileFetcher *fetcher.Fetcher[Owner]
+	hoyosFetcher   *fetcher.Fetcher[Hoyos]
+	hoyoFetcher    *fetcher.Fetcher[Hoyo]
+	buildsFetcher  *fetcher.Fetcher[AvatarBuildsMap]
 }
 
 // NewClient creates a new Enka API client for making requests.
@@ -53,8 +58,14 @@ type Client struct {
 //	customClient := &http.Client{Timeout: 20 * time.Second}
 //	client := enka.NewClient(customClient, nil, "my-app/1.0")
 func NewClient(httpClient *http.Client, cache core.Cache, userAgent string) *Client {
+	c := core.NewClient(httpClient, cache, userAgent)
+
 	return &Client{
-		Client: core.NewClient(httpClient, cache, userAgent),
+		Client:         c,
+		profileFetcher: fetcher.NewFetcher[Owner](c.HTTPClient, c.UserAgent),
+		hoyosFetcher:   fetcher.NewFetcher[Hoyos](c.HTTPClient, c.UserAgent),
+		hoyoFetcher:    fetcher.NewFetcher[Hoyo](c.HTTPClient, c.UserAgent),
+		buildsFetcher:  fetcher.NewFetcher[AvatarBuildsMap](c.HTTPClient, c.UserAgent),
 	}
 }
 
@@ -110,37 +121,20 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*Owner, e
 	}
 
 	url := fmt.Sprintf("%s/profile/%s", core.BaseURL, username)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", c.UserAgent)
-	resp, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		switch resp.StatusCode {
-		case 404:
+	owner, err := c.profileFetcher.FetchWithRetry(ctx, url)
+	if err != nil {
+		if err == errors.ErrPlayerNotFound {
 			return nil, ErrUserNotFound
-		default:
-			return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 		}
-	}
-
-	var owner Owner
-	err = json.NewDecoder(resp.Body).Decode(&owner)
-	if err != nil {
 		return nil, err
 	}
 
 	if c.Cache != nil {
-		c.Cache.Set(key, &owner, 5*time.Minute)
+		c.Cache.Set(key, owner, 5*time.Minute)
 	}
 
-	return &owner, nil
+	return owner, nil
 }
 
 // GetUserProfileHoyos fetches a list of “hoyos” — verified and public game accounts
@@ -191,39 +185,21 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (Hoyo
 		}
 	}
 
-	url := fmt.Sprintf("%s/profile/%s/hoyos/", core.BaseURL, username)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
+	url := fmt.Sprintf("%s/profile/%s/hoyos", core.BaseURL, username)
 
-	req.Header.Set("User-Agent", c.UserAgent)
-	resp, err := c.HTTPClient.Do(req)
+	hoyos, err := c.hoyosFetcher.FetchWithRetry(ctx, url)
 	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		switch resp.StatusCode {
-		case 404:
+		if err == errors.ErrPlayerNotFound {
 			return nil, ErrUserNotFound
-		default:
-			return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 		}
-	}
-
-	var hoyos Hoyos
-	err = json.NewDecoder(resp.Body).Decode(&hoyos)
-	if err != nil {
 		return nil, err
 	}
 
 	if c.Cache != nil {
-		c.Cache.Set(key, &hoyos, 5*time.Minute)
+		c.Cache.Set(key, hoyos, 5*time.Minute)
 	}
 
-	return hoyos, nil
+	return *hoyos, nil
 }
 
 // GetUserProfileHoyo fetches information about a specific Hoyo account.
@@ -274,39 +250,21 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 		}
 	}
 
-	url := fmt.Sprintf("%s/profile/%s/hoyos/%s/?format=json", core.BaseURL, username, hoyo_hash)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
+	url := fmt.Sprintf("%s/profile/%s/hoyos/%s", core.BaseURL, username, hoyo_hash)
 
-	req.Header.Set("User-Agent", c.UserAgent)
-	resp, err := c.HTTPClient.Do(req)
+	hoyo, err := c.hoyoFetcher.FetchWithRetry(ctx, url)
 	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		switch resp.StatusCode {
-		case 404:
+		if err == errors.ErrPlayerNotFound {
 			return nil, ErrHoyoAccountNotFound
-		default:
-			return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 		}
-	}
-
-	var hoyo Hoyo
-	err = json.NewDecoder(resp.Body).Decode(&hoyo)
-	if err != nil {
 		return nil, err
 	}
 
 	if c.Cache != nil {
-		c.Cache.Set(key, &hoyo, 5*time.Minute)
+		c.Cache.Set(key, hoyo, 5*time.Minute)
 	}
 
-	return &hoyo, nil
+	return hoyo, nil
 }
 
 // GetUserProfileHoyoBuilds fetches character builds for a specific Hoyo account.
@@ -361,31 +319,13 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 		}
 	}
 
-	url := fmt.Sprintf("%s/profile/%s/hoyos/%s/builds/", core.BaseURL, username, hoyo_hash)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
+	url := fmt.Sprintf("%s/profile/%s/hoyos/%s/builds", core.BaseURL, username, hoyo_hash)
 
-	req.Header.Set("User-Agent", c.UserAgent)
-	resp, err := c.HTTPClient.Do(req)
+	builds, err := c.buildsFetcher.FetchWithRetry(ctx, url)
 	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		switch resp.StatusCode {
-		case 404:
+		if err == errors.ErrPlayerNotFound {
 			return nil, ErrHoyoAccountBuildsNotFound
-		default:
-			return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 		}
-	}
-
-	var builds AvatarBuildsMap
-	err = json.NewDecoder(resp.Body).Decode(&builds)
-	if err != nil {
 		return nil, err
 	}
 
@@ -393,5 +333,5 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 		c.Cache.Set(key, builds, 5*time.Minute)
 	}
 
-	return builds, nil
+	return *builds, nil
 }
