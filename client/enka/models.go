@@ -31,7 +31,7 @@ type Build struct {
 	Public   bool     `json:"public,omitempty"` // Whether the build is public
 	Image    *string  `json:"image,omitempty"`  // URL of the build image
 	Hoyo     string   `json:"hoyo,omitempty"`   // Unique hoyo identifier (hoyo_hash)
-	Order    int      `json:"order,omitempty"`  // Order of the saved build on the Enka
+	Order    string   `json:"order,omitempty"`  // Order of the saved build on the Enka
 	HoyoType int      `json:"hoyo_type"`        // ID of the Hoyo game (0 for Genshin, 1 for HSR, 2 for ZZZ)
 }
 
@@ -114,17 +114,26 @@ type Hoyos map[string]Hoyo
 
 // Hoyo contains information about a specific Hoyo account.
 type Hoyo struct {
-	UID         int                `json:"uid,omitempty"`          // UID of the game account
-	UIDPublic   bool               `json:"uid_public,omitempty"`   // Whether the UID is public
-	Public      bool               `json:"public,omitempty"`       // Whether the Hoyo account is public
-	Verified    bool               `json:"verified,omitempty"`     // Whether the Hoyo account is verified
-	PlayerInfo  *models.PlayerInfo `json:"player_info,omitempty"`  // Player information for the account
-	Hash        string             `json:"hash,omitempty"`         // Hash of the game account
-	Region      string             `json:"region,omitempty"`       // Region of the game account
-	AvatarOrder map[string]int     `json:"avatar_order,omitempty"` // Order of the characters in the game account
-	Order       int                `json:"order"`                  // Order of the Hoyo account
-	LivePublic  bool               `json:"live_public"`            // Whether the live build is public
-	HoyoType    int                `json:"hoyo_type"`              // ID of the Hoyo game (0 for Genshin, 1 for HSR, 2 for ZZZ)
+	User         *User              `json:"user,omitempty"`           // User information
+	UID          int                `json:"uid,omitempty"`            // UID of the game account
+	UIDPublic    bool               `json:"uid_public,omitempty"`     // Whether the UID is public
+	Public       bool               `json:"public,omitempty"`         // Whether the Hoyo account is public
+	LivePublic   bool               `json:"live_public"`              // Whether the live build is public
+	Verified     bool               `json:"verified,omitempty"`       // Whether the Hoyo account is verified
+	PlayerInfo   *models.PlayerInfo `json:"player_info,omitempty"`    // Player information for the account
+	Hash         string             `json:"hash,omitempty"`           // Hash of the game account
+	Region       string             `json:"region,omitempty"`         // Region of the game account
+	Order        string             `json:"order"`                    // Order of the Hoyo account
+	AvatarOrder  map[string]int     `json:"avatar_order,omitempty"`   // Order of the characters in the game account
+	HoyoType     int                `json:"hoyo_type"`                // ID of the Hoyo game (0 for Genshin, 1 for HSR, 2 for ZZZ)
+	LiveDataHash int                `json:"live_data_hash,omitempty"` // Hash of the live data for the account
+}
+
+// User represents an Enka user profile.
+type User struct {
+	ID       int             `json:"id"`                 // Enka user ID
+	Profile  *PatreonProfile `json:"profile,omitempty"`  // Patreon profile data for Patreon members
+	Username string          `json:"username,omitempty"` // Enka username
 }
 
 // Settings represents build-specific configuration options.
