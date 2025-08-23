@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.2] - 2025-08-23
+### Fixed
+- Resolved JSON unmarshalling errors for `order` fields in `Build` and `Hoyo` structs by changing their types from `int` to `string`.
+
+### Changed
+- The `Hoyo` struct now includes a `User` field for Enka user profile information.
+- Added `LiveDataHash` field to the `Hoyo` struct for live data tracking.
+- Added new `User` struct to represent Enka user profiles.
+
 ## [0.5.1] - 2025-08-02
 ### Changed
 - The `github.com/google/go-cmp` package has been removed from dependencies and replaced with the standard library package `reflect`.
