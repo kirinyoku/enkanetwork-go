@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.3] - 2025-11-05
+### Changed
+- In the `Hoyo` structure, the `User` field now points to the `Owner` structure instead of the `User` structure. It has the same fields as before. 
+- The `Medal` struct now includes a unknown `CEMCDAIJFJG` field for backward compatibility with EnkaNetwork API.
+
 ## [0.5.2] - 2025-08-23
 ### Fixed
 - Resolved JSON unmarshalling errors for `order` fields in `Build` and `Hoyo` structs by changing their types from `int` to `string`.

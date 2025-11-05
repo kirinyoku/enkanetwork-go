@@ -114,7 +114,7 @@ type Hoyos map[string]Hoyo
 
 // Hoyo contains information about a specific Hoyo account.
 type Hoyo struct {
-	User         *User              `json:"user,omitempty"`           // User information
+	User         *Owner             `json:"user,omitempty"`           // User information
 	UID          int                `json:"uid,omitempty"`            // UID of the game account
 	UIDPublic    bool               `json:"uid_public,omitempty"`     // Whether the UID is public
 	Public       bool               `json:"public,omitempty"`         // Whether the Hoyo account is public
@@ -127,13 +127,6 @@ type Hoyo struct {
 	AvatarOrder  map[string]int     `json:"avatar_order,omitempty"`   // Order of the characters in the game account
 	HoyoType     int                `json:"hoyo_type"`                // ID of the Hoyo game (0 for Genshin, 1 for HSR, 2 for ZZZ)
 	LiveDataHash int                `json:"live_data_hash,omitempty"` // Hash of the live data for the account
-}
-
-// User represents an Enka user profile.
-type User struct {
-	ID       int             `json:"id"`                 // Enka user ID
-	Profile  *PatreonProfile `json:"profile,omitempty"`  // Patreon profile data for Patreon members
-	Username string          `json:"username,omitempty"` // Enka username
 }
 
 // Settings represents build-specific configuration options.

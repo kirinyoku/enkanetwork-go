@@ -135,10 +135,11 @@ type SocialDetail struct {
 
 // Medal contains information about a badge.
 type Medal struct {
-	Value      int `json:"Value"`      // Progress number
-	MedalIcon  int `json:"MedalIcon"`  // Icon ID
-	MedalType  int `json:"MedalType"`  // Badge type (see https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md#badge-type)
-	MedalScore int `json:"MedalScore"` // Badge score
+	Value       int  `json:"Value"`       // Progress number
+	MedalIcon   int  `json:"MedalIcon"`   // Icon ID
+	MedalType   int  `json:"MedalType"`   // Badge type (see https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md#badge-type)
+	MedalScore  int  `json:"MedalScore"`  // Badge score
+	CEMCDAIJFJG bool `json:"CEMCDAIJFJG"` // ???
 }
 
 // ProfileDetail contains detailed player profile information.
