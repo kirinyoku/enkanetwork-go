@@ -79,6 +79,9 @@ type AvatarData struct {
 	// If you have any information, please let me know.
 	IsUpgradeUnlocked bool `json:"IsUpgradeUnlocked"` // ??
 	UpgradeID         int  `json:"UpgradeId"`         // ??
+	AKODAOHJMCM       bool `json:"AKODAOHJMCM"`       // ??
+	BGJNAPMPNBD       bool `json:"BGJNAPMPNBD"`       // ??
+	INBEHNKPKNI       bool `json:"INBEHNKPKNI"`       // ??
 }
 
 // SkillLevel contains information about an agent’s skill level.
@@ -139,7 +142,7 @@ type Medal struct {
 	MedalIcon   int  `json:"MedalIcon"`   // Icon ID
 	MedalType   int  `json:"MedalType"`   // Badge type (see https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md#badge-type)
 	MedalScore  int  `json:"MedalScore"`  // Badge score
-	CEMCDAIJFJG bool `json:"CEMCDAIJFJG"` // ???
+	BLBLHGJKKCB bool `json:"BLBLHGJKKCB"` // ???
 }
 
 // ProfileDetail contains detailed player profile information.

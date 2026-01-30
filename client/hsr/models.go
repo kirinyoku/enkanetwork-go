@@ -56,6 +56,10 @@ type DetailInfo struct {
 	IsDisplayAvatar    bool                `json:"isDisplayAvatar,omitempty"`    // Whether the player's avatar is displayed
 	FriendCount        int                 `json:"friendCount,omitempty"`        // Number of friends the player has
 	PersonalCardID     int                 `json:"personalCardId,omitempty"`     // ID of the player's personal card
+
+	// There is no information about this field in the EnkaNetwork HSR API doc.
+	// In practice, I always get its value as []map.
+	HeadFrameInfo any `json:"headFrameInfo,omitempty"`
 }
 
 // PrivacySettingInfo contains the player’s privacy settings for various game features.
