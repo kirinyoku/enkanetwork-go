@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.4] - 2026-01-30
+### Fixed
+- Resolved JSON unmarshalling errors in the `hsr` client by adding the `HeadFrameInfo` field to the `DetailInfo` struct.
+- Resolved JSON unmarshalling errors in the `zzz` client by updating the `AvatarData` and `Medal` structs to include missing fields and correct field names to match the EnkaNetwork API response.
+
 ## [0.5.3] - 2025-11-05
 ### Changed
 - In the `Hoyo` structure, the `User` field now points to the `Owner` structure instead of the `User` structure. It has the same fields as before. 
