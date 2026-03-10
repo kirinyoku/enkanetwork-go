@@ -25,6 +25,8 @@ type Profile struct {
 	Owner *models.Owner `json:"owner,omitempty"`
 	// UID is the player's UID in Zenless Zone Zero.
 	UID string `json:"uid,omitempty"`
+	// Region is the player's server region (e.g., "Asia", "Europe", "America").
+	Region string `json:"region,omitempty"`
 }
 
 // Build contains information about a specific character build in Zenless Zone Zero.
@@ -79,9 +81,6 @@ type AvatarData struct {
 	// If you have any information, please let me know.
 	IsUpgradeUnlocked bool `json:"IsUpgradeUnlocked"` // ??
 	UpgradeID         int  `json:"UpgradeId"`         // ??
-	AKODAOHJMCM       bool `json:"AKODAOHJMCM"`       // ??
-	BGJNAPMPNBD       bool `json:"BGJNAPMPNBD"`       // ??
-	INBEHNKPKNI       bool `json:"INBEHNKPKNI"`       // ??
 }
 
 // SkillLevel contains information about an agent’s skill level.
@@ -138,11 +137,10 @@ type SocialDetail struct {
 
 // Medal contains information about a badge.
 type Medal struct {
-	Value       int  `json:"Value"`       // Progress number
-	MedalIcon   int  `json:"MedalIcon"`   // Icon ID
-	MedalType   int  `json:"MedalType"`   // Badge type (see https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md#badge-type)
-	MedalScore  int  `json:"MedalScore"`  // Badge score
-	BLBLHGJKKCB bool `json:"BLBLHGJKKCB"` // ???
+	Value      int `json:"Value"`      // Progress number
+	MedalIcon  int `json:"MedalIcon"`  // Icon ID
+	MedalType  int `json:"MedalType"`  // Badge type (see https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md#badge-type)
+	MedalScore int `json:"MedalScore"` // Badge score
 }
 
 // ProfileDetail contains detailed player profile information.

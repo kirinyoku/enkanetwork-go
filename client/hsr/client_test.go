@@ -92,7 +92,15 @@ func TestGetProfile(t *testing.T) {
 	apiJSON = core.RemoveTTLField(apiJSON)
 	clientJSON = core.RemoveTTLField(clientJSON)
 
-	if !reflect.DeepEqual(apiJSON, clientJSON) {
+	var apiMap, clientMap map[string]interface{}
+	if err := json.Unmarshal(apiJSON, &apiMap); err != nil {
+		t.Fatalf("failed to unmarshal API JSON: %v", err)
+	}
+	if err := json.Unmarshal(clientJSON, &clientMap); err != nil {
+		t.Fatalf("failed to unmarshal client JSON: %v", err)
+	}
+
+	if !reflect.DeepEqual(apiMap, clientMap) {
 		t.Errorf("JSON responses do not match. API JSON: %s\nClient JSON: %s", apiJSON, clientJSON)
 	}
 }

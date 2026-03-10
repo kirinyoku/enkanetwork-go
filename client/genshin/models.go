@@ -31,6 +31,8 @@ type Profile struct {
 	TTL int `json:"ttl"`
 	// UID is the player's UID in Genshin Impact
 	UID string `json:"uid,omitempty"`
+	// Region is the server region of the player (e.g., "NA", "EU", "Asia", "TW, HK, MO").
+	Region string `json:"region,omitempty"`
 }
 
 // AvatarInfo contains detailed information for characters in the showcase.

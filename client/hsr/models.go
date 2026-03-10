@@ -21,6 +21,8 @@ type Profile struct {
 	Owner *models.Owner `json:"owner,omitempty"`
 	// UID is the unique identifier for the player's account
 	UID string `json:"uid,omitempty"`
+	// Region indicates the server region of the player (e.g., "ASIA", "USA", "EUROPE")
+	Region string `json:"region,omitempty"`
 }
 
 // Build contains information about a specific character build in Honkai: Star Rail.
@@ -104,7 +106,7 @@ type SubAffix struct {
 // Flat contains flat data for relics and equipment.
 type Flat struct {
 	Props   []models.Prop `json:"props,omitempty"`   // List of properties
-	SetName string        `json:"setName,omitempty"` // Name of the set
+	SetName uint64        `json:"setName,omitempty"` // Name of the set
 	SetID   int           `json:"setID,omitempty"`   // ID of the set
 }
 
@@ -116,7 +118,7 @@ type SkillTree struct {
 
 // EquipmentFlat contains flat data for equipment.
 type EquipmentFlat struct {
-	Name  string        `json:"name,omitempty"`  // Name of the equipment
+	Name  uint64        `json:"name,omitempty"`  // Name of the equipment
 	Props []models.Prop `json:"props,omitempty"` // List of properties
 }
 
