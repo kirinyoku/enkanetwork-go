@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.5] - 2026-03-10
+### Fixed
+- Resolved JSON unmarshalling errors in the `zzz` client by removing obsolete fields from the `AvatarData` and `Medal` structs, and adding the `Region` field to the `Profile` struct.
+- Resolved JSON unmarshalling errors in the `genshin` client by adding the `UID` and `Region` fields to the `Profile` struct.
+- Resolved JSON unmarshalling errors in the `hsr` client by adding the `UID` and `Region` fields to the `Profile` struct.
+
 ## [0.5.4] - 2026-01-30
 ### Fixed
 - Resolved JSON unmarshalling errors in the `hsr` client by adding the `HeadFrameInfo` field to the `DetailInfo` struct.
