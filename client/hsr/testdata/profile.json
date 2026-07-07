@@ -1,0 +1,99 @@
+{
+  "detailInfo": {
+    "avatarDetailList": [
+      {
+        "_assist": true,
+        "avatarId": 1217,
+        "enhancedId": 1,
+        "equipment": {
+          "_flat": {
+            "name": "6652371494884618152",
+            "props": [
+              {
+                "type": "BaseHP",
+                "value": 1164.24
+              }
+            ]
+          },
+          "level": 80,
+          "promotion": 6,
+          "rank": 1,
+          "tid": 23017
+        },
+        "level": 80,
+        "promotion": 6,
+        "rank": 1,
+        "relicList": [
+          {
+            "_flat": {
+              "props": [
+                {
+                  "type": "HPDelta",
+                  "value": 705.6
+                }
+              ],
+              "setID": 114,
+              "setName": "1311116816978843608"
+            },
+            "level": 15,
+            "mainAffixId": 1,
+            "subAffixList": [
+              {
+                "affixId": 2,
+                "cnt": 3,
+                "step": 3
+              }
+            ],
+            "tid": 61141,
+            "type": 1
+          }
+        ],
+        "skillTreeList": [
+          {
+            "level": 6,
+            "pointId": 11217001
+          }
+        ]
+      }
+    ],
+    "friendCount": 14,
+    "headIcon": 200131,
+    "isDisplayAvatar": true,
+    "level": 70,
+    "nickname": "Maple",
+    "personalCardId": 253000,
+    "platform": "PC",
+    "privacySettingInfo": {
+      "displayCollection": true,
+      "displayDiary": true,
+      "displayOnlineStatus": true,
+      "displayRecord": true,
+      "displayRecordTeam": true
+    },
+    "recordInfo": {
+      "achievementCount": 585,
+      "avatarCount": 50,
+      "bookCount": 207,
+      "challengeInfo": {},
+      "equipmentCount": 90,
+      "maxRogueChallengeScore": 9,
+      "musicCount": 87,
+      "relicCount": 1780
+    },
+    "uid": 807752192,
+    "worldLevel": 6
+  },
+  "owner": {
+    "hash": "3Xp9LG",
+    "id": 115,
+    "profile": {
+      "avatar": "https://cdn.enka.network/avatar.png",
+      "bio": "fixture profile",
+      "level": 3
+    },
+    "username": "GordonCheng"
+  },
+  "region": "ASIA",
+  "ttl": 300,
+  "uid": "807752192"
+}

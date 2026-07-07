@@ -1,0 +1,35 @@
+{
+  "owner": {
+    "hash": "4Wjv2e",
+    "id": 749,
+    "is_staff": true,
+    "profile": {
+      "avatar": "https://cdn.enka.network/avatar.png",
+      "bio": "fixture profile",
+      "level": 3
+    },
+    "username": "Algoinde"
+  },
+  "playerInfo": {
+    "fetterCount": 13,
+    "finishAchievementNum": 458,
+    "level": 57,
+    "nameCardId": 210001,
+    "nickname": "Algoinde",
+    "profilePicture": {
+      "avatarId": 10000021
+    },
+    "showAvatarInfoList": [
+      {
+        "avatarId": 10000021,
+        "energyType": 1,
+        "level": 90
+      }
+    ],
+    "signature": "fixture",
+    "worldLevel": 8
+  },
+  "region": "NA",
+  "ttl": 300,
+  "uid": "618285856"
+}

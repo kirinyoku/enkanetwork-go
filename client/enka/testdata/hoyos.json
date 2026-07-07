@@ -1,0 +1,78 @@
+{
+  "2hOhJd": {
+    "avatar_order": null,
+    "hash": "2hOhJd",
+    "hoyo_type": 3,
+    "live_data_hash": 1405773220,
+    "live_public": true,
+    "order": "0.0000000000",
+    "player_info": {
+      "achievement": {
+        "display": [
+          {
+            "key": 9,
+            "value": 56
+          }
+        ],
+        "infoList": [
+          {
+            "achieveNumId": 70,
+            "isPlated": false,
+            "level": 3
+          }
+        ]
+      },
+      "adventureLevel": 58,
+      "businessCardExpandFlag": true,
+      "businessCardTopicId": 5,
+      "charList": [
+        {
+          "level": 90,
+          "potentialLevel": 0,
+          "templateId": "chr_0013_aglina"
+        }
+      ],
+      "contingencyContractBestRecord": {
+        "activityId": 53,
+        "bestScore": 26
+      },
+      "createTime": 1769043423,
+      "domainDev": {
+        "domains": [
+          {
+            "domainId": "domain_1",
+            "level": 12
+          }
+        ]
+      },
+      "gender": 1,
+      "mainMissionId": "e10m4d5",
+      "name": "Algoinde",
+      "platformRoleId": "6165912915",
+      "shortId": "6448",
+      "signature": "fixture",
+      "statistic": {
+        "charNum": 27,
+        "docNum": 175,
+        "weaponNum": 46
+      },
+      "userAvatarFrameId": 15,
+      "userAvatarId": 29,
+      "worldLevel": 7
+    },
+    "public": true,
+    "region": "EU/NA",
+    "uid_public": false,
+    "user": {
+      "id": 749,
+      "is_staff": true,
+      "profile": {
+        "avatar": "https://cdn.enka.network/avatar.png",
+        "bio": "fixture profile",
+        "level": 3
+      },
+      "username": "Algoinde"
+    },
+    "verified": true
+  }
+}

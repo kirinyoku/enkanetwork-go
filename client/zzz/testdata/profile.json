@@ -1,0 +1,40 @@
+{
+  "PlayerInfo": {
+    "ShowcaseDetail": {
+      "AvatarList": []
+    },
+    "SocialDetail": {
+      "Desc": "fixture profile",
+      "MedalList": [],
+      "ProfileDetail": {
+        "AvatarId": 2021,
+        "CallingCardId": 3321341,
+        "Level": 60,
+        "Nickname": "Chocola",
+        "PlatformType": 3,
+        "ProfileId": 3231331,
+        "Title": 0,
+        "TitleInfo": {
+          "Args": [],
+          "FullTitle": 0,
+          "KMOHDEAKEFG": [],
+          "Title": 3800203
+        },
+        "Uid": 1301806568
+      }
+    }
+  },
+  "owner": {
+    "hash": "1KIo9N",
+    "id": 115,
+    "profile": {
+      "avatar": "https://cdn.enka.network/avatar.png",
+      "bio": "fixture profile",
+      "level": 3
+    },
+    "username": "GordonCheng"
+  },
+  "region": "Asia",
+  "ttl": 300,
+  "uid": "1301806568"
+}

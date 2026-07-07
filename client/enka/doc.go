@@ -1,0 +1,45 @@
+// Package enka provides a client for interacting with the EnkaNetwork API to fetch
+// and manage user profiles and game account information from the EnkaNetwork platform.
+//
+// The package offers a high-level interface to access various features of the EnkaNetwork API,
+// including:
+//   - Fetching user profiles with detailed information
+//   - Retrieving game accounts (Hoyo accounts) linked to user profiles
+//   - Accessing character builds and equipment
+//   - Managing cached responses to respect API rate limits
+//
+// # Getting Started
+//
+// To start using the package, create a new client instance and make API calls:
+//
+//	// Create a new client
+//	client := enka.New(enka.Options{
+//	    UserAgent: "my-app/1.0",
+//	})
+//
+//	// Fetch a user profile
+//	profile, err := client.GetUserProfile(context.Background(), "Algoinde")
+//	if err != nil {
+//	    // handle error
+//	}
+//
+// # Caching
+//
+// The client supports optional caching of API responses to reduce the number of requests
+// made to the EnkaNetwork API. You can provide any implementation of the core.Cache interface
+// when creating a new client.
+//
+// # Rate Limiting
+//
+// The package includes built-in retry logic for handling rate limits (HTTP 429 responses).
+// By default, it makes up to 3 attempts, respects Retry-After when present, and
+// uses a fixed fallback delay. Retry behavior can be configured through Options.Retry.
+//
+// # Error Handling
+//
+// All API methods return errors that can be inspected to determine the cause of failure.
+// The package defines several sentinel errors for common error conditions.
+//
+// For more information about the EnkaNetwork API, see:
+// https://api.enka.network/
+package enka
