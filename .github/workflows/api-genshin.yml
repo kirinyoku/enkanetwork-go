@@ -1,0 +1,37 @@
+name: Genshin API
+
+on:
+  schedule:
+    # Daily at 05:17 UTC; avoiding the start of the hour reduces queue delays.
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-genshin
+  cancel-in-progress: false
+
+jobs:
+  compatibility:
+    name: Live API compatibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+
+      - name: Run Genshin Impact integration tests
+        env:
+          RUN_INTEGRATION_TESTS: "true"
+        run: go test -count=1 -timeout=5m -v -tags=integration ./client/genshin

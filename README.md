@@ -10,6 +10,9 @@ It fetches EnkaNetwork JSON responses and decodes them into typed Go structs for
 [![Go Reference](https://pkg.go.dev/badge/github.com/kirinyoku/enkanetwork-go.svg)](https://pkg.go.dev/github.com/kirinyoku/enkanetwork-go)
 [![Go Version](https://img.shields.io/badge/Go-1.20%2B-00ADD8?logo=go)](https://go.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Genshin API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-genshin.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-genshin.yml)
+[![HSR API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-hsr.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-hsr.yml)
+[![ZZZ API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-zzz.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-zzz.yml)
 
 ## Installation
 
@@ -181,6 +184,21 @@ if raw, ok := profile.Extra["newApiField"]; ok {
 Some volatile scalar fields use helper types from `models`, such as
 `models.StringNumber`, so the client can decode API values that may arrive as
 either JSON strings or numbers.
+
+### Automated Live Checks
+
+GitHub Actions runs the live integration tests for each game every day. The API
+badges at the top of this README show the latest result on `main`; click a badge
+to see the run history and logs. Each check can also be started manually from
+the Actions tab after a game patch.
+
+These are compatibility checks, not a byte-for-byte API change feed. Additive
+fields that the library safely preserves through `Extra` are expected to keep
+passing.
+
+A failed live check can indicate API drift, but it can also be caused by
+EnkaNetwork downtime, rate limiting, or a public test profile changing. Check
+the workflow log and the EnkaNetwork status page before changing the models.
 
 ## Documentation
 
