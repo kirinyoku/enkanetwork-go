@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.1.1] - 2026-07-12
+
+### Changed
+- Improved JSON handling performance for flexible scalar types and unknown-field preservation.
+- Reduced allocations when merging known, extra, and raw JSON fields.
+- Reduced memory usage when draining non-successful HTTP responses.
+- Improved retry timer handling to avoid lingering timers after cancellation.
+
+### Fixed
+- Preserved exact JSON number comparison in diff helpers for large integer values.
+- Handled `Retry-After` parsing more strictly for invalid, negative, or overflowing values.
+
 ## [v0.1.0] - 2026-07-07
 
 ### Added

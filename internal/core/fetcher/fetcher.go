@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
@@ -80,24 +81,21 @@ func (f *Fetcher[T]) FetchWithRetry(ctx context.Context, url string) (*T, error)
 			return nil, err
 		}
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			resp.Body.Close()
-			return nil, fmt.Errorf("failed to read response body: %w", err)
-		}
-		if err := resp.Body.Close(); err != nil {
-			return nil, fmt.Errorf("failed to close response body: %w", err)
-		}
-
 		if resp.StatusCode == http.StatusOK {
-			var result T
-
-			err = json.Unmarshal(body, &result)
+			body, err := readAndCloseResponseBody(resp.Body)
 			if err != nil {
+				return nil, err
+			}
+
+			var result T
+			if err := json.Unmarshal(body, &result); err != nil {
 				return nil, fmt.Errorf("failed to decode profile: %w", err)
 			}
 
 			return &result, nil
+		}
+		if err := discardAndCloseResponseBody(resp.Body); err != nil {
+			return nil, err
 		}
 
 		if isRetryableStatus(resp.StatusCode) {
@@ -109,12 +107,10 @@ func (f *Fetcher[T]) FetchWithRetry(ctx context.Context, url string) (*T, error)
 						delay = parseRetryAfter(retryAfter, f.retryDelay)
 					}
 				}
-				select {
-				case <-time.After(delay):
-					continue
-				case <-ctx.Done():
-					return nil, ctx.Err()
+				if err := waitForRetry(ctx, delay); err != nil {
+					return nil, err
 				}
+				continue
 			}
 
 			return nil, errorForStatus(resp.StatusCode)
@@ -124,6 +120,50 @@ func (f *Fetcher[T]) FetchWithRetry(ctx context.Context, url string) (*T, error)
 	}
 
 	return nil, errors.ErrRateLimited
+}
+
+func readAndCloseResponseBody(body io.ReadCloser) ([]byte, error) {
+	data, err := io.ReadAll(body)
+	if err != nil {
+		_ = body.Close()
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if err := body.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close response body: %w", err)
+	}
+
+	return data, nil
+}
+
+func discardAndCloseResponseBody(body io.ReadCloser) error {
+	_, err := io.Copy(io.Discard, body)
+	if err != nil {
+		_ = body.Close()
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if err := body.Close(); err != nil {
+		return fmt.Errorf("failed to close response body: %w", err)
+	}
+
+	return nil
+}
+
+func waitForRetry(ctx context.Context, delay time.Duration) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+
+	select {
+	case <-timer.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 func isRetryableStatus(statusCode int) bool {
@@ -154,21 +194,33 @@ func errorForStatus(statusCode int) error {
 // parseRetryAfter parses the Retry-After header value into a time.Duration.
 // It handles both:
 //   - Integer values (seconds)
-//   - HTTP date strings (RFC 1123 format)
+//   - All HTTP date formats accepted by net/http, plus RFC 1123 dates using UTC
 //
-// If parsing fails or the date is in the past, it returns the fallback delay.
+// If parsing fails, it returns the fallback delay. Dates in the past produce a
+// zero delay so the next attempt can start immediately.
 func parseRetryAfter(retryAfter string, fallback time.Duration) time.Duration {
-	if seconds, err := strconv.Atoi(retryAfter); err == nil {
+	retryAfter = strings.TrimSpace(retryAfter)
+	if seconds, err := strconv.ParseUint(retryAfter, 10, 64); err == nil {
+		maxSeconds := uint64((time.Duration(1<<63 - 1)) / time.Second)
+		if seconds > maxSeconds {
+			return fallback
+		}
 		return time.Duration(seconds) * time.Second
 	}
 
-	if date, err := time.Parse(time.RFC1123, retryAfter); err == nil {
+	date, err := http.ParseTime(retryAfter)
+	if err != nil {
+		// time.RFC1123 also accepts UTC, which older versions of this package
+		// accepted even though HTTP dates conventionally use GMT.
+		date, err = time.Parse(time.RFC1123, retryAfter)
+	}
+	if err == nil {
 		delay := time.Until(date)
 		if delay < 0 {
-			return 0 // Retry immediately if the date is in the past
+			return 0
 		}
 		return delay
 	}
 
-	return fallback // Default if parsing fails
+	return fallback
 }

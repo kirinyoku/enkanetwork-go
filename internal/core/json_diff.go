@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"sort"
-	"strconv"
 )
 
 // JSONDiff compares two JSON documents semantically and returns the first
@@ -142,16 +142,18 @@ func diffJSONArrays(path string, expected, actual []any, ignoredPaths map[string
 }
 
 func diffJSONNumbers(path string, expected, actual json.Number) string {
-	expectedFloat, expectedErr := strconv.ParseFloat(expected.String(), 64)
-	actualFloat, actualErr := strconv.ParseFloat(actual.String(), 64)
-	if expectedErr != nil || actualErr != nil {
+	var expectedNumber big.Rat
+	_, expectedOK := expectedNumber.SetString(expected.String())
+	var actualNumber big.Rat
+	_, actualOK := actualNumber.SetString(actual.String())
+	if !expectedOK || !actualOK {
 		if expected.String() != actual.String() {
 			return fmt.Sprintf("%s number mismatch: expected %s, got %s", path, expected, actual)
 		}
 		return ""
 	}
 
-	if expectedFloat != actualFloat {
+	if expectedNumber.Cmp(&actualNumber) != 0 {
 		return fmt.Sprintf("%s number mismatch: expected %s, got %s", path, expected, actual)
 	}
 	return ""

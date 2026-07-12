@@ -69,3 +69,44 @@ func TestIntStringAcceptsStringAndNumber(t *testing.T) {
 		t.Fatalf("expected JSON number, got %s", gotJSON)
 	}
 }
+
+func TestFlexibleScalarsAcceptWhitespaceAndNull(t *testing.T) {
+	stringNumber := StringNumber("123")
+	if err := stringNumber.UnmarshalJSON([]byte(" \n null\t")); err != nil {
+		t.Fatalf("StringNumber.UnmarshalJSON() error = %v", err)
+	}
+	if !stringNumber.IsZero() {
+		t.Fatalf("StringNumber = %q, want zero", stringNumber)
+	}
+
+	var intString IntString
+	if err := intString.UnmarshalJSON([]byte(" \n -42\t")); err != nil {
+		t.Fatalf("IntString.UnmarshalJSON() error = %v", err)
+	}
+	if intString != -42 {
+		t.Fatalf("IntString = %d, want -42", intString)
+	}
+}
+
+func TestFlexibleScalarsRejectOtherJSONTypes(t *testing.T) {
+	for _, data := range []string{"true", `{"value":1}`, "[1]"} {
+		var stringNumber StringNumber
+		if err := stringNumber.UnmarshalJSON([]byte(data)); err == nil {
+			t.Fatalf("StringNumber.UnmarshalJSON(%s) expected error", data)
+		}
+
+		var intString IntString
+		if err := intString.UnmarshalJSON([]byte(data)); err == nil {
+			t.Fatalf("IntString.UnmarshalJSON(%s) expected error", data)
+		}
+	}
+}
+
+func TestIntStringRejectsNonIntegerJSONNumber(t *testing.T) {
+	for _, data := range []string{"1.5", "1e2"} {
+		var value IntString
+		if err := value.UnmarshalJSON([]byte(data)); err == nil {
+			t.Fatalf("IntString.UnmarshalJSON(%s) expected error", data)
+		}
+	}
+}

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -12,20 +13,22 @@ type StringNumber string
 
 // UnmarshalJSON accepts JSON strings, numbers, and null.
 func (s *StringNumber) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" {
+	trimmed := bytes.TrimSpace(data)
+	if bytes.Equal(trimmed, []byte("null")) {
 		*s = ""
 		return nil
 	}
 
-	var asString string
-	if err := json.Unmarshal(data, &asString); err == nil {
-		*s = StringNumber(asString)
-		return nil
+	if len(trimmed) > 0 && trimmed[0] == '"' {
+		var asString string
+		if err := json.Unmarshal(trimmed, &asString); err == nil {
+			*s = StringNumber(asString)
+			return nil
+		}
 	}
 
-	var asNumber json.Number
-	if err := json.Unmarshal(data, &asNumber); err == nil {
-		*s = StringNumber(asNumber.String())
+	if isJSONNumber(trimmed) {
+		*s = StringNumber(string(trimmed))
 		return nil
 	}
 
@@ -58,14 +61,14 @@ type IntString int64
 
 // UnmarshalJSON accepts JSON strings, numbers, and null.
 func (i *IntString) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" {
+	trimmed := bytes.TrimSpace(data)
+	if bytes.Equal(trimmed, []byte("null")) {
 		*i = 0
 		return nil
 	}
 
-	var asNumber json.Number
-	if err := json.Unmarshal(data, &asNumber); err == nil {
-		parsed, parseErr := strconv.ParseInt(asNumber.String(), 10, 64)
+	if isJSONNumber(trimmed) {
+		parsed, parseErr := strconv.ParseInt(string(trimmed), 10, 64)
 		if parseErr != nil {
 			return parseErr
 		}
@@ -73,14 +76,16 @@ func (i *IntString) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	var asString string
-	if err := json.Unmarshal(data, &asString); err == nil {
-		parsed, parseErr := strconv.ParseInt(asString, 10, 64)
-		if parseErr != nil {
-			return parseErr
+	if len(trimmed) > 0 && trimmed[0] == '"' {
+		var asString string
+		if err := json.Unmarshal(trimmed, &asString); err == nil {
+			parsed, parseErr := strconv.ParseInt(asString, 10, 64)
+			if parseErr != nil {
+				return parseErr
+			}
+			*i = IntString(parsed)
+			return nil
 		}
-		*i = IntString(parsed)
-		return nil
 	}
 
 	return fmt.Errorf("IntString: expected string or number, got %s", data)
@@ -88,7 +93,7 @@ func (i *IntString) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON serializes the value as a JSON number.
 func (i IntString) MarshalJSON() ([]byte, error) {
-	return json.Marshal(int64(i))
+	return strconv.AppendInt(nil, int64(i), 10), nil
 }
 
 // String returns the normalized decimal string value.
@@ -104,4 +109,11 @@ func (i IntString) Int64() (int64, error) {
 // IsZero reports whether the value is zero.
 func (i IntString) IsZero() bool {
 	return i == 0
+}
+
+func isJSONNumber(data []byte) bool {
+	if len(data) == 0 || (data[0] != '-' && (data[0] < '0' || data[0] > '9')) {
+		return false
+	}
+	return json.Valid(data)
 }

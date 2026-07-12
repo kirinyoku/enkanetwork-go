@@ -68,6 +68,20 @@ func TestPreserveUnknownJSONForStruct(t *testing.T) {
 	}
 }
 
+func TestJSONFieldNamesReturnsIndependentSlice(t *testing.T) {
+	type model struct {
+		Known string `json:"known,omitempty"`
+	}
+
+	first := JSONFieldNames(model{})
+	first[0] = "changed"
+
+	second := JSONFieldNames(model{})
+	if second[0] != "known" {
+		t.Fatalf("JSONFieldNames() returned shared mutable data: %q", second[0])
+	}
+}
+
 func TestMergeKnownAndExtraJSON(t *testing.T) {
 	known := struct {
 		Known string `json:"known"`
@@ -175,6 +189,20 @@ func TestMergeKnownExtraAndRawJSONKnownFieldsWin(t *testing.T) {
 	}
 
 	assertJSONEqual(t, []byte(`{"count":7}`), got)
+}
+
+func TestIsZeroLikeJSON(t *testing.T) {
+	for _, value := range []string{"null", "false", `""`, "[]", "{}", "0", "-0", "0.00", "0e10", "-0E-2", "0e999999"} {
+		if !isZeroLikeJSON(json.RawMessage(value)) {
+			t.Errorf("isZeroLikeJSON(%s) = false, want true", value)
+		}
+	}
+
+	for _, value := range []string{"true", `"0"`, "1", "-1", "0.1", "1e-1000", "00", "0.", "0e", "-", `{"value":0}`, "[0]"} {
+		if isZeroLikeJSON(json.RawMessage(value)) {
+			t.Errorf("isZeroLikeJSON(%s) = true, want false", value)
+		}
+	}
 }
 
 func assertJSONEqual(t *testing.T, wantJSON, gotJSON []byte) {

@@ -45,6 +45,13 @@ func TestJSONDiffTreatsEquivalentNumbersAsEqual(t *testing.T) {
 	}
 }
 
+func TestJSONDiffDistinguishesLargeIntegersExactly(t *testing.T) {
+	diff := JSONDiff([]byte(`{"a":9007199254740992}`), []byte(`{"a":9007199254740993}`))
+	if !strings.Contains(diff, "$.a number mismatch") {
+		t.Fatalf("unexpected diff: %s", diff)
+	}
+}
+
 func TestJSONDiffWithIgnoredPaths(t *testing.T) {
 	ignored := map[string]struct{}{
 		"$.ttl": {},
