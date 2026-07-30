@@ -2,6 +2,7 @@ package zzz
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 	"github.com/kirinyoku/enkanetwork-go/models"
@@ -61,6 +62,11 @@ func (p *Profile) UnmarshalJSON(data []byte) error {
 func (p Profile) MarshalJSON() ([]byte, error) {
 	type Alias Profile
 	return core.MergeKnownExtraAndRawJSON(Alias(p), p.Extra, p.Raw)
+}
+
+// CacheTTL implements the core.Cacheable interface.
+func (p Profile) CacheTTL() time.Duration {
+	return time.Duration(p.TTL) * time.Second
 }
 
 // Build contains information about a specific character build in Zenless Zone Zero.

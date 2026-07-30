@@ -119,6 +119,32 @@ func FetchWithRetry[T any](ctx context.Context, f *Fetcher, url string) (*T, err
 	return nil, errors.ErrRateLimited
 }
 
+// FetchAndCache executes an HTTP GET request with retry logic and caches the result.
+// It checks the cache first. If the item is found, it performs a safe type assertion
+// and returns the typed result. If not found, it calls FetchWithRetry to get the data,
+// and if successful and a cache is provided, it stores the result in the cache using
+// the TTL provided by the model itself via the Cacheable interface.
+func FetchAndCache[T Cacheable](ctx context.Context, f *Fetcher, url string, cacheKey string, cache Cache) (*T, error) {
+	if cache != nil {
+		if cached, ok := cache.Get(cacheKey); ok {
+			if typed, ok := cached.(*T); ok {
+				return typed, nil
+			}
+		}
+	}
+
+	result, err := FetchWithRetry[T](ctx, f, url)
+	if err != nil {
+		return nil, err
+	}
+
+	if cache != nil {
+		cache.Set(cacheKey, result, (*result).CacheTTL())
+	}
+
+	return result, nil
+}
+
 func readAndCloseResponseBody(body io.ReadCloser) ([]byte, error) {
 	data, err := io.ReadAll(body)
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 	"github.com/kirinyoku/enkanetwork-go/internal/core/errors"
@@ -79,27 +78,14 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*Owner, e
 	}
 
 	key := fmt.Sprintf("user_%s", username)
-
-	if c.Cache() != nil {
-		if cached, ok := c.Cache().Get(key); ok {
-			if owner, ok := cached.(*Owner); ok {
-				return owner, nil
-			}
-		}
-	}
-
 	requestURL := fmt.Sprintf("%s/profile/%s", c.BaseURL(), url.PathEscape(username))
 
-	owner, err := core.FetchWithRetry[Owner](ctx, c.Fetcher(), requestURL)
+	owner, err := core.FetchAndCache[Owner](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
 		if err == errors.ErrPlayerNotFound {
 			return nil, ErrUserNotFound
 		}
 		return nil, err
-	}
-
-	if c.Cache() != nil {
-		c.Cache().Set(key, owner, 5*time.Minute)
 	}
 
 	return owner, nil
@@ -144,27 +130,14 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (Hoyo
 	}
 
 	key := fmt.Sprintf("user_%s_hoyos", username)
-
-	if c.Cache() != nil {
-		if cached, ok := c.Cache().Get(key); ok {
-			if hoyos, ok := cached.(Hoyos); ok {
-				return hoyos, nil
-			}
-		}
-	}
-
 	requestURL := fmt.Sprintf("%s/profile/%s/hoyos", c.BaseURL(), url.PathEscape(username))
 
-	hoyos, err := core.FetchWithRetry[Hoyos](ctx, c.Fetcher(), requestURL)
+	hoyos, err := core.FetchAndCache[Hoyos](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
 		if err == errors.ErrPlayerNotFound {
 			return nil, ErrUserNotFound
 		}
 		return nil, err
-	}
-
-	if c.Cache() != nil {
-		c.Cache().Set(key, *hoyos, 5*time.Minute)
 	}
 
 	return *hoyos, nil
@@ -209,27 +182,14 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 	}
 
 	key := fmt.Sprintf("user_%s_hoyos_%s", username, hoyo_hash)
-
-	if c.Cache() != nil {
-		if cached, ok := c.Cache().Get(key); ok {
-			if hoyo, ok := cached.(*Hoyo); ok {
-				return hoyo, nil
-			}
-		}
-	}
-
 	requestURL := fmt.Sprintf("%s/profile/%s/hoyos/%s", c.BaseURL(), url.PathEscape(username), url.PathEscape(hoyo_hash))
 
-	hoyo, err := core.FetchWithRetry[Hoyo](ctx, c.Fetcher(), requestURL)
+	hoyo, err := core.FetchAndCache[Hoyo](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
 		if err == errors.ErrPlayerNotFound {
 			return nil, ErrHoyoAccountNotFound
 		}
 		return nil, err
-	}
-
-	if c.Cache() != nil {
-		c.Cache().Set(key, hoyo, 5*time.Minute)
 	}
 
 	return hoyo, nil
@@ -278,27 +238,14 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 	}
 
 	key := fmt.Sprintf("user_%s_hoyos_%s_builds", username, hoyo_hash)
-
-	if c.Cache() != nil {
-		if cached, ok := c.Cache().Get(key); ok {
-			if builds, ok := cached.(AvatarBuildsMap); ok {
-				return builds, nil
-			}
-		}
-	}
-
 	requestURL := fmt.Sprintf("%s/profile/%s/hoyos/%s/builds", c.BaseURL(), url.PathEscape(username), url.PathEscape(hoyo_hash))
 
-	builds, err := core.FetchWithRetry[AvatarBuildsMap](ctx, c.Fetcher(), requestURL)
+	builds, err := core.FetchAndCache[AvatarBuildsMap](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
 		if err == errors.ErrPlayerNotFound {
 			return nil, ErrHoyoAccountBuildsNotFound
 		}
 		return nil, err
-	}
-
-	if c.Cache() != nil {
-		c.Cache().Set(key, *builds, 5*time.Minute)
 	}
 
 	return *builds, nil

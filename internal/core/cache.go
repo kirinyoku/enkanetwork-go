@@ -21,3 +21,9 @@ type Cache interface {
 	// The value is provided as-is and may be a pointer to a response struct.
 	Set(key string, value any, expiration time.Duration)
 }
+
+// Cacheable defines an interface for models that can provide their own cache TTL.
+type Cacheable interface {
+	// CacheTTL returns the duration for which the model should be cached.
+	CacheTTL() time.Duration
+}

@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
@@ -122,6 +123,11 @@ func (o *Owner) UnmarshalJSON(data []byte) error {
 func (o Owner) MarshalJSON() ([]byte, error) {
 	type Alias Owner
 	return core.MergeKnownExtraAndRawJSON(Alias(o), o.Extra, o.Raw)
+}
+
+// CacheTTL implements the core.Cacheable interface.
+func (o Owner) CacheTTL() time.Duration {
+	return 5 * time.Minute
 }
 
 // PatreonProfile contains Patreon-related information for an Enka user.

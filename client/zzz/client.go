@@ -3,7 +3,6 @@ package zzz
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
@@ -83,22 +82,9 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 	}
 
 	key := fmt.Sprintf("zzz_%s", uid)
-
-	if c.Cache() != nil {
-		if cached, ok := c.Cache().Get(key); ok {
-			if profile, ok := cached.(*Profile); ok {
-				return profile, nil
-			}
-		}
-	}
-
 	url := fmt.Sprintf("%s/zzz/uid/%s", c.BaseURL(), uid)
-	profile, err := core.FetchWithRetry[Profile](ctx, c.Fetcher(), url)
-	if err == nil && c.Cache() != nil {
-		c.Cache().Set(key, profile, time.Duration(profile.TTL)*time.Second)
-	}
 
-	return profile, err
+	return core.FetchAndCache[Profile](ctx, c.Fetcher(), url, key, c.Cache())
 }
 
 // isValidUID checks if the provided UID is a valid 9 or 10-digit number.

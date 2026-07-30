@@ -3,7 +3,6 @@ package genshin
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
@@ -85,23 +84,9 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 	}
 
 	key := fmt.Sprintf("genshin_%s", uid)
-
-	if c.Cache() != nil {
-		if cached, ok := c.Cache().Get(key); ok {
-			if profile, ok := cached.(*Profile); ok {
-				return profile, nil
-			}
-		}
-	}
-
 	url := fmt.Sprintf("%s/uid/%s", c.BaseURL(), uid)
 
-	profile, err := core.FetchWithRetry[Profile](ctx, c.Fetcher(), url)
-	if err == nil && c.Cache() != nil {
-		c.Cache().Set(key, profile, time.Duration(profile.TTL)*time.Second)
-	}
-
-	return profile, err
+	return core.FetchAndCache[Profile](ctx, c.Fetcher(), url, key, c.Cache())
 }
 
 // GetPlayerInfo fetches limited player profile information for the given UID.
@@ -143,21 +128,7 @@ func (c *Client) GetPlayerInfo(ctx context.Context, uid string) (*Profile, error
 	}
 
 	key := "genshin_" + uid + "_info"
-
-	if c.Cache() != nil {
-		if cached, ok := c.Cache().Get(key); ok {
-			if profile, ok := cached.(*Profile); ok {
-				return profile, nil
-			}
-		}
-	}
-
 	url := fmt.Sprintf("%s/uid/%s?info", c.BaseURL(), uid)
 
-	profile, err := core.FetchWithRetry[Profile](ctx, c.Fetcher(), url)
-	if err == nil && c.Cache() != nil {
-		c.Cache().Set(key, profile, time.Duration(profile.TTL)*time.Second)
-	}
-
-	return profile, err
+	return core.FetchAndCache[Profile](ctx, c.Fetcher(), url, key, c.Cache())
 }

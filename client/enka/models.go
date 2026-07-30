@@ -2,6 +2,7 @@ package enka
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/client/genshin"
 	"github.com/kirinyoku/enkanetwork-go/client/hsr"
@@ -14,6 +15,11 @@ import (
 // of builds for that character, returned in random order. Each build includes an
 // "order" field that can be used to sort them for display.
 type AvatarBuildsMap map[string][]Build
+
+// CacheTTL implements the core.Cacheable interface.
+func (a AvatarBuildsMap) CacheTTL() time.Duration {
+	return 5 * time.Minute
+}
 
 // HoyoType identifies which game/account type a Hoyo account or build belongs to.
 // The API field is named "hoyo_type" even for non-HoYoverse games.
@@ -166,6 +172,11 @@ func (a AvatarDataWrapper) MarshalJSON() ([]byte, error) {
 // that game account.
 type Hoyos map[string]Hoyo
 
+// CacheTTL implements the core.Cacheable interface.
+func (h Hoyos) CacheTTL() time.Duration {
+	return 5 * time.Minute
+}
+
 // Owner represents an EnkaNetwork user profile associated with a game account.
 type Owner = models.Owner
 
@@ -229,6 +240,11 @@ func (h *Hoyo) UnmarshalJSON(data []byte) error {
 func (h Hoyo) MarshalJSON() ([]byte, error) {
 	type Alias Hoyo
 	return core.MergeKnownExtraAndRawJSON(Alias(h), h.Extra, h.Raw)
+}
+
+// CacheTTL implements the core.Cacheable interface.
+func (h Hoyo) CacheTTL() time.Duration {
+	return 5 * time.Minute
 }
 
 // Settings represents build-specific configuration options.
