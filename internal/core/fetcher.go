@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/kirinyoku/enkanetwork-go/internal/core/errors"
 )
 
 // Fetcher is a generic HTTP client that handles request retries and error handling.
@@ -54,12 +53,12 @@ func NewFetcher(client *http.Client, userAgent string, retry RetryOptions) *Fetc
 //   - error: An error if the request fails after all retries or encounters a non-retryable error.
 //
 // Possible errors:
-//   - errors.ErrInvalidUIDFormat: For 400 Bad Request
-//   - errors.ErrPlayerNotFound: For 404 Not Found
-//   - errors.ErrServerMaintenance: For 424 Failed Dependency
-//   - errors.ErrServerError: When retries are exhausted due to 500 responses
-//   - errors.ErrServiceUnavailable: When retries are exhausted due to 503 responses
-//   - errors.ErrRateLimited: When retries are exhausted due to 429 responses
+//   - ErrInvalidUIDFormat: For 400 Bad Request
+//   - ErrPlayerNotFound: For 404 Not Found
+//   - ErrServerMaintenance: For 424 Failed Dependency
+//   - ErrServerError: When retries are exhausted due to 500 responses
+//   - ErrServiceUnavailable: When retries are exhausted due to 503 responses
+//   - ErrRateLimited: When retries are exhausted due to 429 responses
 //
 // The function attempts up to the configured maximum attempts for transient errors (429, 500, 503).
 // If retries are exhausted, it returns the error matching the last retryable status.
@@ -116,7 +115,7 @@ func FetchWithRetry[T any](ctx context.Context, f *Fetcher, url string) (*T, err
 		return nil, errorForStatus(resp.StatusCode)
 	}
 
-	return nil, errors.ErrRateLimited
+	return nil, ErrRateLimited
 }
 
 // FetchAndCache executes an HTTP GET request with retry logic and caches the result.
@@ -198,17 +197,17 @@ func isRetryableStatus(statusCode int) bool {
 func errorForStatus(statusCode int) error {
 	switch statusCode {
 	case http.StatusBadRequest:
-		return errors.ErrInvalidUIDFormat
+		return ErrInvalidUIDFormat
 	case http.StatusNotFound:
-		return errors.ErrPlayerNotFound
+		return ErrPlayerNotFound
 	case http.StatusFailedDependency:
-		return errors.ErrServerMaintenance
+		return ErrServerMaintenance
 	case http.StatusTooManyRequests:
-		return errors.ErrRateLimited
+		return ErrRateLimited
 	case http.StatusInternalServerError:
-		return errors.ErrServerError
+		return ErrServerError
 	case http.StatusServiceUnavailable:
-		return errors.ErrServiceUnavailable
+		return ErrServiceUnavailable
 	default:
 		return fmt.Errorf("unexpected status: %d", statusCode)
 	}

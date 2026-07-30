@@ -10,9 +10,6 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
-
-	
-	coreerrors "github.com/kirinyoku/enkanetwork-go/internal/core/errors"
 )
 
 func BenchmarkFetchWithRetryErrorBody(b *testing.B) {
@@ -33,8 +30,8 @@ func BenchmarkFetchWithRetryErrorBody(b *testing.B) {
 	b.SetBytes(int64(len(body)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := FetchWithRetry[struct{}](context.Background(), fetcher, "https://example.test"); err != coreerrors.ErrServiceUnavailable {
-			b.Fatalf("error = %v, want %v", err, coreerrors.ErrServiceUnavailable)
+		if _, err := FetchWithRetry[struct{}](context.Background(), fetcher, "https://example.test"); err != ErrServiceUnavailable {
+			b.Fatalf("error = %v, want %v", err, ErrServiceUnavailable)
 		}
 	}
 }
@@ -49,8 +46,8 @@ func TestFetchWithRetryReturnsRateLimitedAfter429Retries(t *testing.T) {
 	}
 
 	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", NormalizeRetryOptions(nil)), "https://example.test")
-	if err != coreerrors.ErrRateLimited {
-		t.Fatalf("error = %v, want %v", err, coreerrors.ErrRateLimited)
+	if err != ErrRateLimited {
+		t.Fatalf("error = %v, want %v", err, ErrRateLimited)
 	}
 	if attempts != DefaultMaxAttempts {
 		t.Fatalf("attempts = %d, want %d", attempts, DefaultMaxAttempts)
@@ -67,8 +64,8 @@ func TestFetchWithRetryReturnsServiceUnavailableAfter503Retries(t *testing.T) {
 	}
 
 	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", NormalizeRetryOptions(nil)), "https://example.test")
-	if err != coreerrors.ErrServiceUnavailable {
-		t.Fatalf("error = %v, want %v", err, coreerrors.ErrServiceUnavailable)
+	if err != ErrServiceUnavailable {
+		t.Fatalf("error = %v, want %v", err, ErrServiceUnavailable)
 	}
 	if attempts != DefaultMaxAttempts {
 		t.Fatalf("attempts = %d, want %d", attempts, DefaultMaxAttempts)
@@ -86,8 +83,8 @@ func TestFetchWithRetryUsesConfiguredMaxAttempts(t *testing.T) {
 
 	retry := NormalizeRetryOptions(&RetryOptions{MaxAttempts: 2})
 	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", retry), "https://example.test")
-	if err != coreerrors.ErrRateLimited {
-		t.Fatalf("error = %v, want %v", err, coreerrors.ErrRateLimited)
+	if err != ErrRateLimited {
+		t.Fatalf("error = %v, want %v", err, ErrRateLimited)
 	}
 	if attempts != 2 {
 		t.Fatalf("attempts = %d, want 2", attempts)
@@ -105,8 +102,8 @@ func TestFetchWithRetryCanBeDisabled(t *testing.T) {
 
 	retry := NormalizeRetryOptions(&RetryOptions{MaxAttempts: 1})
 	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", retry), "https://example.test")
-	if err != coreerrors.ErrServiceUnavailable {
-		t.Fatalf("error = %v, want %v", err, coreerrors.ErrServiceUnavailable)
+	if err != ErrServiceUnavailable {
+		t.Fatalf("error = %v, want %v", err, ErrServiceUnavailable)
 	}
 	if attempts != 1 {
 		t.Fatalf("attempts = %d, want 1", attempts)
@@ -161,8 +158,8 @@ func TestFetchWithRetryDrainsErrorBody(t *testing.T) {
 	}
 
 	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", RetryOptions{MaxAttempts: 1}), "https://example.test")
-	if err != coreerrors.ErrServiceUnavailable {
-		t.Fatalf("error = %v, want %v", err, coreerrors.ErrServiceUnavailable)
+	if err != ErrServiceUnavailable {
+		t.Fatalf("error = %v, want %v", err, ErrServiceUnavailable)
 	}
 	if body.Len() != 0 {
 		t.Fatalf("response body has %d unread bytes", body.Len())

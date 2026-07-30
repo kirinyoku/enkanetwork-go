@@ -6,7 +6,6 @@ import (
 	"net/url"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
-	"github.com/kirinyoku/enkanetwork-go/internal/core/errors"
 )
 
 // Client extends core.Client to provide Enka-specific functionality for user profile
@@ -82,7 +81,7 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*Owner, e
 
 	owner, err := core.FetchAndCache[Owner](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
-		if err == errors.ErrPlayerNotFound {
+		if err == core.ErrPlayerNotFound {
 			return nil, ErrUserNotFound
 		}
 		return nil, err
@@ -134,7 +133,7 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (Hoyo
 
 	hoyos, err := core.FetchAndCache[Hoyos](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
-		if err == errors.ErrPlayerNotFound {
+		if err == core.ErrPlayerNotFound {
 			return nil, ErrUserNotFound
 		}
 		return nil, err
@@ -186,7 +185,7 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 
 	hoyo, err := core.FetchAndCache[Hoyo](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
-		if err == errors.ErrPlayerNotFound {
+		if err == core.ErrPlayerNotFound {
 			return nil, ErrHoyoAccountNotFound
 		}
 		return nil, err
@@ -242,7 +241,7 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 
 	builds, err := core.FetchAndCache[AvatarBuildsMap](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
-		if err == errors.ErrPlayerNotFound {
+		if err == core.ErrPlayerNotFound {
 			return nil, ErrHoyoAccountBuildsNotFound
 		}
 		return nil, err
