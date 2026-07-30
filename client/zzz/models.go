@@ -381,7 +381,7 @@ type TitleInfo struct {
 	Title       int                        `json:"Title"`       // ??
 	FullTitle   int                        `json:"FullTitle"`   // ??
 	Args        []any                      `json:"Args"`        // ??
-	KMOHDEAKEFG []any                      `json:"KMOHDEAKEFG"` // ??
+	KMOHDEAKEFG []any                      `json:"KMOHDEAKEFG,omitempty"` // ??
 	Raw         json.RawMessage            `json:"-"`           // Raw contains the original API object
 	Extra       map[string]json.RawMessage `json:"-"`           // Extra contains unknown API fields
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.1.2] - 2026-07-30
+
+### Fixed
+- Added `omitempty` tag to `KMOHDEAKEFG` field in ZZZ `TitleInfo` model to tolerate its removal from the API and fix integration test failures.
+
 ## [v0.1.1] - 2026-07-12
 
 ### Changed
