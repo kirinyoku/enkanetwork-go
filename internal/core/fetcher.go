@@ -1,4 +1,4 @@
-package fetcher
+package core
 
 import (
 	"context"
@@ -9,14 +9,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/kirinyoku/enkanetwork-go/internal/core"
 	"github.com/kirinyoku/enkanetwork-go/internal/core/errors"
 )
 
 // Fetcher is a generic HTTP client that handles request retries and error handling.
-// The type parameter T specifies the type to unmarshal the JSON response into.
-type Fetcher[T any] struct {
+type Fetcher struct {
 	client      *http.Client
 	userAgent   string
 	maxAttempts int
@@ -26,14 +23,14 @@ type Fetcher[T any] struct {
 // NewFetcher creates a new Fetcher instance with the specified HTTP client and user agent.
 // The HTTP client should be configured with appropriate timeouts and transport settings.
 // The user agent string will be included in all requests.
-func NewFetcher[T any](client *http.Client, userAgent string, retry core.RetryOptions) *Fetcher[T] {
+func NewFetcher(client *http.Client, userAgent string, retry RetryOptions) *Fetcher {
 	if retry.MaxAttempts <= 0 {
-		retry.MaxAttempts = core.DefaultMaxAttempts
+		retry.MaxAttempts = DefaultMaxAttempts
 	}
 	if retry.Delay <= 0 {
-		retry.Delay = core.DefaultRetryDelay
+		retry.Delay = DefaultRetryDelay
 	}
-	return &Fetcher[T]{
+	return &Fetcher{
 		client:      client,
 		userAgent:   userAgent,
 		maxAttempts: retry.MaxAttempts,
@@ -67,7 +64,7 @@ func NewFetcher[T any](client *http.Client, userAgent string, retry core.RetryOp
 // The function attempts up to the configured maximum attempts for transient errors (429, 500, 503).
 // If retries are exhausted, it returns the error matching the last retryable status.
 // For other error status codes, it returns immediately with the corresponding error.
-func (f *Fetcher[T]) FetchWithRetry(ctx context.Context, url string) (*T, error) {
+func FetchWithRetry[T any](ctx context.Context, f *Fetcher, url string) (*T, error) {
 	for attempt := 0; attempt < f.maxAttempts; attempt++ {
 		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err != nil {

@@ -1,4 +1,4 @@
-package fetcher
+package core
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kirinyoku/enkanetwork-go/internal/core"
+	
 	coreerrors "github.com/kirinyoku/enkanetwork-go/internal/core/errors"
 )
 
@@ -27,13 +27,13 @@ func BenchmarkFetchWithRetryErrorBody(b *testing.B) {
 			}, nil
 		}),
 	}
-	fetcher := NewFetcher[struct{}](client, "test-agent", core.RetryOptions{MaxAttempts: 1})
+	fetcher := NewFetcher(client, "test-agent", RetryOptions{MaxAttempts: 1})
 
 	b.ReportAllocs()
 	b.SetBytes(int64(len(body)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := fetcher.FetchWithRetry(context.Background(), "https://example.test"); err != coreerrors.ErrServiceUnavailable {
+		if _, err := FetchWithRetry[struct{}](context.Background(), fetcher, "https://example.test"); err != coreerrors.ErrServiceUnavailable {
 			b.Fatalf("error = %v, want %v", err, coreerrors.ErrServiceUnavailable)
 		}
 	}
@@ -48,12 +48,12 @@ func TestFetchWithRetryReturnsRateLimitedAfter429Retries(t *testing.T) {
 		}),
 	}
 
-	_, err := NewFetcher[struct{}](client, "test-agent", core.NormalizeRetryOptions(nil)).FetchWithRetry(context.Background(), "https://example.test")
+	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", NormalizeRetryOptions(nil)), "https://example.test")
 	if err != coreerrors.ErrRateLimited {
 		t.Fatalf("error = %v, want %v", err, coreerrors.ErrRateLimited)
 	}
-	if attempts != core.DefaultMaxAttempts {
-		t.Fatalf("attempts = %d, want %d", attempts, core.DefaultMaxAttempts)
+	if attempts != DefaultMaxAttempts {
+		t.Fatalf("attempts = %d, want %d", attempts, DefaultMaxAttempts)
 	}
 }
 
@@ -66,12 +66,12 @@ func TestFetchWithRetryReturnsServiceUnavailableAfter503Retries(t *testing.T) {
 		}),
 	}
 
-	_, err := NewFetcher[struct{}](client, "test-agent", core.NormalizeRetryOptions(nil)).FetchWithRetry(context.Background(), "https://example.test")
+	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", NormalizeRetryOptions(nil)), "https://example.test")
 	if err != coreerrors.ErrServiceUnavailable {
 		t.Fatalf("error = %v, want %v", err, coreerrors.ErrServiceUnavailable)
 	}
-	if attempts != core.DefaultMaxAttempts {
-		t.Fatalf("attempts = %d, want %d", attempts, core.DefaultMaxAttempts)
+	if attempts != DefaultMaxAttempts {
+		t.Fatalf("attempts = %d, want %d", attempts, DefaultMaxAttempts)
 	}
 }
 
@@ -84,8 +84,8 @@ func TestFetchWithRetryUsesConfiguredMaxAttempts(t *testing.T) {
 		}),
 	}
 
-	retry := core.NormalizeRetryOptions(&core.RetryOptions{MaxAttempts: 2})
-	_, err := NewFetcher[struct{}](client, "test-agent", retry).FetchWithRetry(context.Background(), "https://example.test")
+	retry := NormalizeRetryOptions(&RetryOptions{MaxAttempts: 2})
+	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", retry), "https://example.test")
 	if err != coreerrors.ErrRateLimited {
 		t.Fatalf("error = %v, want %v", err, coreerrors.ErrRateLimited)
 	}
@@ -103,8 +103,8 @@ func TestFetchWithRetryCanBeDisabled(t *testing.T) {
 		}),
 	}
 
-	retry := core.NormalizeRetryOptions(&core.RetryOptions{MaxAttempts: 1})
-	_, err := NewFetcher[struct{}](client, "test-agent", retry).FetchWithRetry(context.Background(), "https://example.test")
+	retry := NormalizeRetryOptions(&RetryOptions{MaxAttempts: 1})
+	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", retry), "https://example.test")
 	if err != coreerrors.ErrServiceUnavailable {
 		t.Fatalf("error = %v, want %v", err, coreerrors.ErrServiceUnavailable)
 	}
@@ -137,9 +137,9 @@ func TestFetchWithRetryClosesBodyBeforeRetry(t *testing.T) {
 		}),
 	}
 
-	got, err := NewFetcher[struct {
+	got, err := FetchWithRetry[struct {
 		Name string `json:"name"`
-	}](client, "test-agent", core.NormalizeRetryOptions(nil)).FetchWithRetry(context.Background(), "https://example.test")
+	}](context.Background(), NewFetcher(client, "test-agent", NormalizeRetryOptions(nil)), "https://example.test")
 	if err != nil {
 		t.Fatalf("FetchWithRetry() error = %v", err)
 	}
@@ -160,7 +160,7 @@ func TestFetchWithRetryDrainsErrorBody(t *testing.T) {
 		}),
 	}
 
-	_, err := NewFetcher[struct{}](client, "test-agent", core.RetryOptions{MaxAttempts: 1}).FetchWithRetry(context.Background(), "https://example.test")
+	_, err := FetchWithRetry[struct{}](context.Background(), NewFetcher(client, "test-agent", RetryOptions{MaxAttempts: 1}), "https://example.test")
 	if err != coreerrors.ErrServiceUnavailable {
 		t.Fatalf("error = %v, want %v", err, coreerrors.ErrServiceUnavailable)
 	}

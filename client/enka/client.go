@@ -8,7 +8,6 @@ import (
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 	"github.com/kirinyoku/enkanetwork-go/internal/core/errors"
-	"github.com/kirinyoku/enkanetwork-go/internal/core/fetcher"
 )
 
 // Client extends core.Client to provide Enka-specific functionality for user profile
@@ -20,11 +19,7 @@ import (
 // when calling New. Once created, use the Client to call methods like
 // GetUserProfile to fetch user data.
 type Client struct {
-	*core.Client   // Embedded read-only shared client configuration
-	profileFetcher *fetcher.Fetcher[Owner]
-	hoyosFetcher   *fetcher.Fetcher[Hoyos]
-	hoyoFetcher    *fetcher.Fetcher[Hoyo]
-	buildsFetcher  *fetcher.Fetcher[AvatarBuildsMap]
+	*core.Client // Embedded read-only shared client configuration
 }
 
 // Options configures an Enka API client.
@@ -38,11 +33,7 @@ func New(options Options) *Client {
 	c := core.NewClient(options)
 
 	return &Client{
-		Client:         c,
-		profileFetcher: fetcher.NewFetcher[Owner](c.HTTPClient(), c.UserAgent(), c.Retry()),
-		hoyosFetcher:   fetcher.NewFetcher[Hoyos](c.HTTPClient(), c.UserAgent(), c.Retry()),
-		hoyoFetcher:    fetcher.NewFetcher[Hoyo](c.HTTPClient(), c.UserAgent(), c.Retry()),
-		buildsFetcher:  fetcher.NewFetcher[AvatarBuildsMap](c.HTTPClient(), c.UserAgent(), c.Retry()),
+		Client: c,
 	}
 }
 
@@ -99,7 +90,7 @@ func (c *Client) GetUserProfile(ctx context.Context, username string) (*Owner, e
 
 	requestURL := fmt.Sprintf("%s/profile/%s", c.BaseURL(), url.PathEscape(username))
 
-	owner, err := c.profileFetcher.FetchWithRetry(ctx, requestURL)
+	owner, err := core.FetchWithRetry[Owner](ctx, c.Fetcher(), requestURL)
 	if err != nil {
 		if err == errors.ErrPlayerNotFound {
 			return nil, ErrUserNotFound
@@ -164,7 +155,7 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (Hoyo
 
 	requestURL := fmt.Sprintf("%s/profile/%s/hoyos", c.BaseURL(), url.PathEscape(username))
 
-	hoyos, err := c.hoyosFetcher.FetchWithRetry(ctx, requestURL)
+	hoyos, err := core.FetchWithRetry[Hoyos](ctx, c.Fetcher(), requestURL)
 	if err != nil {
 		if err == errors.ErrPlayerNotFound {
 			return nil, ErrUserNotFound
@@ -229,7 +220,7 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 
 	requestURL := fmt.Sprintf("%s/profile/%s/hoyos/%s", c.BaseURL(), url.PathEscape(username), url.PathEscape(hoyo_hash))
 
-	hoyo, err := c.hoyoFetcher.FetchWithRetry(ctx, requestURL)
+	hoyo, err := core.FetchWithRetry[Hoyo](ctx, c.Fetcher(), requestURL)
 	if err != nil {
 		if err == errors.ErrPlayerNotFound {
 			return nil, ErrHoyoAccountNotFound
@@ -298,7 +289,7 @@ func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, 
 
 	requestURL := fmt.Sprintf("%s/profile/%s/hoyos/%s/builds", c.BaseURL(), url.PathEscape(username), url.PathEscape(hoyo_hash))
 
-	builds, err := c.buildsFetcher.FetchWithRetry(ctx, requestURL)
+	builds, err := core.FetchWithRetry[AvatarBuildsMap](ctx, c.Fetcher(), requestURL)
 	if err != nil {
 		if err == errors.ErrPlayerNotFound {
 			return nil, ErrHoyoAccountBuildsNotFound

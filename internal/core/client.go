@@ -46,6 +46,7 @@ type Client struct {
 	userAgent  string
 	baseURL    string
 	retry      RetryOptions
+	fetcher    *Fetcher
 }
 
 // NewClient creates and configures a shared Client instance.
@@ -65,12 +66,15 @@ func NewClient(options Options) *Client {
 		userAgent = "enka-network-go-client/1.0"
 	}
 
+	retryOptions := NormalizeRetryOptions(options.Retry)
+
 	return &Client{
 		httpClient: httpClient,
 		cache:      cache,
 		userAgent:  userAgent,
 		baseURL:    baseURL,
-		retry:      NormalizeRetryOptions(options.Retry),
+		retry:      retryOptions,
+		fetcher:    NewFetcher(httpClient, userAgent, retryOptions),
 	}
 }
 
@@ -97,6 +101,11 @@ func (c *Client) BaseURL() string {
 // Retry returns the retry behavior configured at construction time.
 func (c *Client) Retry() RetryOptions {
 	return c.retry
+}
+
+// Fetcher returns the generic HTTP fetcher used by the client.
+func (c *Client) Fetcher() *Fetcher {
+	return c.fetcher
 }
 
 // NormalizeRetryOptions applies default retry settings where options are unset.

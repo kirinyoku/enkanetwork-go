@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
-	"github.com/kirinyoku/enkanetwork-go/internal/core/fetcher"
 )
 
 // Client extends core.Client to provide Genshin-specific functionality for player
@@ -19,7 +18,6 @@ import (
 // to fetch player data.
 type Client struct {
 	*core.Client // Embedded read-only shared client configuration
-	fetcher      *fetcher.Fetcher[Profile]
 }
 
 // Options configures a Genshin Impact API client.
@@ -33,8 +31,7 @@ func New(options Options) *Client {
 	c := core.NewClient(options)
 
 	return &Client{
-		Client:  c,
-		fetcher: fetcher.NewFetcher[Profile](c.HTTPClient(), c.UserAgent(), c.Retry()),
+		Client: c,
 	}
 }
 
@@ -99,7 +96,7 @@ func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 
 	url := fmt.Sprintf("%s/uid/%s", c.BaseURL(), uid)
 
-	profile, err := c.fetcher.FetchWithRetry(ctx, url)
+	profile, err := core.FetchWithRetry[Profile](ctx, c.Fetcher(), url)
 	if err == nil && c.Cache() != nil {
 		c.Cache().Set(key, profile, time.Duration(profile.TTL)*time.Second)
 	}
@@ -157,7 +154,7 @@ func (c *Client) GetPlayerInfo(ctx context.Context, uid string) (*Profile, error
 
 	url := fmt.Sprintf("%s/uid/%s?info", c.BaseURL(), uid)
 
-	profile, err := c.fetcher.FetchWithRetry(ctx, url)
+	profile, err := core.FetchWithRetry[Profile](ctx, c.Fetcher(), url)
 	if err == nil && c.Cache() != nil {
 		c.Cache().Set(key, profile, time.Duration(profile.TTL)*time.Second)
 	}
