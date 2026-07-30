@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.2.0] - 2026-07-30
+
+### Changed
+- Improved and simplified the internal architecture without breaking backward compatibility.
+- Removed duplicated code by centralizing network requests (`Fetcher`) into the `core` package.
+- Made caching cleaner and safer using Go Generics. Each game model now defines its own cache lifetime (`CacheTTL()`).
+- Cleaned up the folder structure by moving errors directly into the `core` package for a flatter, simpler layout.
+
 ## [v0.1.2] - 2026-07-30
 
 ### Fixed
