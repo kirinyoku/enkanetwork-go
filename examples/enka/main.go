@@ -1,4 +1,3 @@
-// Basic example of fetching EnkaNetwork account data.
 package main
 
 import (
@@ -15,12 +14,17 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// IMPORTANT: The enka client is strictly for fetching EnkaNetwork site profiles
+	// (e.g., https://enka.network/u/Algoinde) and their linked accounts.
+	// If you want to fetch in-game data using an in-game UID, use the game-specific
+	// clients instead (`client/genshin`, `client/hsr`, `client/zzz`).
 	client := enka.New(enka.Options{
 		UserAgent: "enkanetwork-go-example/1.0",
 	})
 
 	const username = "Algoinde"
 
+	// Fetch the EnkaNetwork user's profile metadata (Bio, Avatar, etc.)
 	profile, err := client.GetUserProfile(ctx, username)
 	if err != nil {
 		handleProfileError(username, err)
@@ -30,6 +34,9 @@ func main() {
 	fmt.Printf("Username: %s\n", profile.Username)
 	fmt.Printf("Bio: %s\n", profile.Profile.Bio)
 
+	// Fetch all game accounts (Hoyos) linked to this Enka profile.
+	// Note: This only returns accounts that the user has explicitly set to "Public"
+	// in their EnkaNetwork account settings. Private accounts are omitted by the API.
 	hoyos, err := client.GetUserProfileHoyos(ctx, username)
 	if err != nil {
 		handleProfileError(username, err)
@@ -57,6 +64,9 @@ func handleProfileError(username string, err error) {
 	}
 }
 
+// hoyoTypeName converts the API's integer HoyoType to a readable string.
+// EnkaNetwork supports multiple games, so checking the type is crucial if you
+// plan to route the hash to a specific game client later.
 func hoyoTypeName(hoyoType enka.HoyoType) string {
 	switch hoyoType {
 	case enka.HoyoTypeGenshin:
@@ -72,6 +82,9 @@ func hoyoTypeName(hoyoType enka.HoyoType) string {
 	}
 }
 
+// accountID safely extracts the user's ID across different games.
+// Because Enka supports games with different ID structures, UID is a pointer and
+// might be nil. Some games (or unverified accounts) might use a ShortID or PlatformRoleID instead.
 func accountID(hoyo enka.Hoyo) string {
 	if hoyo.UID != nil {
 		return fmt.Sprintf("UID: %d", *hoyo.UID)
