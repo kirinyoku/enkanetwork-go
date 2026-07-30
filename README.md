@@ -1,7 +1,6 @@
 # EnkaNetwork Go
 
-A lightweight Go wrapper for the [EnkaNetwork API](https://api.enka.network/#/api).
-It fetches EnkaNetwork JSON responses and decodes them into typed Go structs for:
+A lightweight Go wrapper for the [EnkaNetwork API](https://api.enka.network/#/api). It supports:
 
 - **Genshin Impact**
 - **Honkai: Star Rail**
@@ -13,6 +12,33 @@ It fetches EnkaNetwork JSON responses and decodes them into typed Go structs for
 [![Genshin API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-genshin.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-genshin.yml)
 [![HSR API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-hsr.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-hsr.yml)
 [![ZZZ API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-zzz.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-zzz.yml)
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+  - [Caching](#caching)
+  - [Retries](#retries)
+- [Error Handling](#error-handling)
+- [API Changes (Drift Tolerance)](#api-changes-drift-tolerance)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- **Fully Typed Models:** All known API responses are mapped to standard Go structs for safe and easy access.
+- **Drift Tolerance:** New or unknown API fields are safely captured in an `Extra` map, so game updates won't break your code.
+- **Accurate Zero Values:** Safely handles empty arrays, `0`, `false`, and `null` without losing data or panicking.
+- **Smart Type Parsing:** Automatically handles fields that unpredictably switch between strings and numbers (e.g., `"123"` vs `123`).
+- **Context Support:** Fully supports `context.Context` for request timeouts and cancellations.
+- **Custom HTTP Clients:** Bring your own `http.Client` for proxies or custom transport settings.
+- **Built-in Caching Support:** Easily plug in any caching layer via a simple interface to avoid rate limits.
+- **Auto Retries:** Configurable automatic retries with backoff for handling temporary network issues.
+- **Clear Error Handling:** Package-level errors make it easy to handle specific API failures.
+- **Lightweight:** No external dependencies.
 
 ## Installation
 
@@ -53,34 +79,10 @@ func main() {
 }
 ```
 
+> [!NOTE]
+> The library provides similar clients for Honkai: Star Rail and Zenless Zone Zero. You can import them from `github.com/kirinyoku/enkanetwork-go/client/hsr` and `github.com/kirinyoku/enkanetwork-go/client/zzz` respectively, and they share a similar API surface.
+
 Full runnable examples are available in [`examples/`](examples).
-
-## Scope
-
-This project is an API wrapper, not a game SDK.
-
-The library exposes the data returned by EnkaNetwork in a Go-friendly form. It
-does not translate game IDs into names, ship game metadata tables, calculate
-builds, or replace EnkaNetwork API semantics with library-specific behavior.
-
-For example, if EnkaNetwork returns a character ID, this wrapper returns that
-character ID. Applications can choose how to map IDs to names, icons, or other
-game data.
-
-## Features
-
-- **Typed-first models** for stable EnkaNetwork response fields.
-- **API drift tolerance** through `Extra` fields on key response and nested
-  models.
-- **Presence preservation** for explicitly returned zero-like values such as
-  `0`, `false`, empty strings, empty arrays, and `null`.
-- **Flexible scalar helpers** for fields that may drift between JSON strings and
-  numbers.
-- **Context support** for cancellation and request timeouts.
-- **Custom HTTP clients** through `Options.HTTPClient`.
-- **Pluggable caching** through the `Cache` interface.
-- **Configurable retries** through `Options.Retry`.
-- **Package-level errors** for common API failures.
 
 ## Configuration
 
@@ -163,11 +165,17 @@ if err != nil {
 Common errors include invalid UID format, player not found, rate limiting,
 server maintenance, server errors, and service unavailability.
 
-## API Drift Tolerance
+## API Changes (Drift Tolerance)
 
-EnkaNetwork responses can change after game patches. This library keeps typed
-access for stable fields while preserving newly added or unknown fields through
-`Extra map[string]json.RawMessage` on key API models.
+Games update often, and the EnkaNetwork API changes with them. The API might add new fields or change data types.
+
+Standard Go structs might fail to read the JSON if a type changes, or they might ignore new fields. To prevent errors and keep your app working, this library uses two strategies:
+
+### 1. Catching New Fields (`Extra`)
+
+When the API returns a new field that this library doesn't know about yet, it saves it in the `Extra map[string]json.RawMessage` field.
+
+This means **you don't have to wait for a library update** to use new data. You can read it yourself right away:
 
 ```go
 profile, err := client.GetProfile(ctx, "618285856")
@@ -175,30 +183,16 @@ if err != nil {
 	log.Fatal(err)
 }
 
-if raw, ok := profile.Extra["newApiField"]; ok {
-	// Decode raw if your application needs this field before it becomes typed.
+// If the API adds a new field that is not yet in the Go structs:
+if raw, ok := profile.Extra["someNewField"]; ok {
+	// You can decode `raw` directly in your app
 	_ = raw
 }
 ```
 
-Some volatile scalar fields use helper types from `models`, such as
-`models.StringNumber`, so the client can decode API values that may arrive as
-either JSON strings or numbers.
+### 2. Flexible Data Types
 
-### Automated Live Checks
-
-GitHub Actions runs the live integration tests for each game every day. The API
-badges at the top of this README show the latest result on `main`; click a badge
-to see the run history and logs. Each check can also be started manually from
-the Actions tab after a game patch.
-
-These are compatibility checks, not a byte-for-byte API change feed. Additive
-fields that the library safely preserves through `Extra` are expected to keep
-passing.
-
-A failed live check can indicate API drift, but it can also be caused by
-EnkaNetwork downtime, rate limiting, or a public test profile changing. Check
-the workflow log and the EnkaNetwork status page before changing the models.
+Sometimes the API returns a value as a string (`"123"`), but later changes it to a number (`123`). Standard Go JSON decoding will crash when this happens. To fix this, we use helper types like `models.StringNumber`. They can safely read both strings and numbers without breaking your app.
 
 ## Documentation
 
@@ -212,21 +206,6 @@ Useful EnkaNetwork links:
 - [Genshin Impact API details](https://github.com/EnkaNetwork/API-docs/blob/master/docs/gi/api.md)
 - [Zenless Zone Zero API details](https://github.com/EnkaNetwork/API-docs/blob/master/docs/zzz/api.md)
 - [EnkaNetwork status](https://status.enka.network/)
-
-## Versioning
-
-This project follows semantic versioning after the public baseline release.
-
-- **Patch releases** fix decoding, preservation, integration drift, or internal
-  behavior without intentional public API changes.
-- **Minor releases** add typed fields, helpers, endpoints, or other
-  backward-compatible functionality.
-- **Major releases** are reserved for deliberate breaking changes to public
-  models, methods, or behavior.
-
-Because EnkaNetwork is a live API, model updates may be needed after game
-patches. The project prefers accurate, drift-tolerant model shapes over hiding
-API changes behind misleading Go zero values.
 
 ## Contributing
 
@@ -247,10 +226,6 @@ When opening a pull request:
 - Add or update tests for behavior changes.
 - Preserve unknown API fields when adding or changing models.
 - Run `go test ./...` before submitting when possible.
-
-## Requirements
-
-- Go 1.20 or newer.
 
 ## License
 
