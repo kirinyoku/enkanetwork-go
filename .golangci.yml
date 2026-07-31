@@ -1,62 +1,69 @@
+version: "2"
 run:
   go: "1.20"
-  timeout: 5m
-
 linters:
   enable:
-    - errcheck
     - gocritic
-    - goimports
-    - gosimple
-    - govet
-    - ineffassign
     - misspell
     - nolintlint
     - revive
-    - staticcheck
     - unconvert
-    - unused
-
-linters-settings:
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - performance
-    disabled-checks:
-      - hugeParam
-
-  goimports:
-    local-prefixes: github.com/kirinyoku/enkanetwork-go
-
-  misspell:
-    locale: US
-
-  nolintlint:
-    require-explanation: true
-    require-specific: true
-
-  revive:
+  settings:
+    gocritic:
+      disabled-checks:
+        - hugeParam
+      enabled-tags:
+        - diagnostic
+        - performance
+    misspell:
+      locale: US
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+    revive:
+      rules:
+        - name: blank-imports
+        - name: exported
+          arguments:
+            - checkPrivateReceivers
+        - name: error-return
+        - name: error-strings
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: receiver-naming
+        - name: range
+        - name: unexported-return
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      - name: blank-imports
-      - name: exported
-        arguments:
-          - checkPrivateReceivers
-      - name: error-return
-      - name: error-strings
-      - name: increment-decrement
-      - name: indent-error-flow
-      - name: receiver-naming
-      - name: range
-      - name: unexported-return
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-        - gocritic
-
-    - path: examples/
-      linters:
-        - errcheck
-        - revive
+      - linters:
+          - errcheck
+          - gocritic
+        path: _test\.go
+      - linters:
+          - errcheck
+          - revive
+          - gocritic
+        path: examples/
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/kirinyoku/enkanetwork-go
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

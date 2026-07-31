@@ -1,8 +1,8 @@
 .PHONY: fmt lint test ci
 
-## fmt: Auto-format code (goimports + gofmt).
+## fmt: Auto-format code.
 fmt:
-	golangci-lint run --fix --enable-only goimports ./...
+	golangci-lint run --fix ./...
 
 ## lint: Run golangci-lint.
 lint:
