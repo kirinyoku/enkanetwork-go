@@ -171,17 +171,17 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (Hoyo
 //	    return
 //	}
 //	fmt.Println("Hoyo:", hoyo)
-func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_hash string) (*Hoyo, error) {
+func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyoHash string) (*Hoyo, error) {
 	if username == "" {
 		return nil, ErrInvalidUsername
 	}
 
-	if hoyo_hash == "" {
+	if hoyoHash == "" {
 		return nil, ErrInvalidHoyoHash
 	}
 
-	key := fmt.Sprintf("user_%s_hoyos_%s", username, hoyo_hash)
-	requestURL := fmt.Sprintf("%s/profile/%s/hoyos/%s", c.BaseURL(), url.PathEscape(username), url.PathEscape(hoyo_hash))
+	key := fmt.Sprintf("user_%s_hoyos_%s", username, hoyoHash)
+	requestURL := fmt.Sprintf("%s/profile/%s/hoyos/%s", c.BaseURL(), url.PathEscape(username), url.PathEscape(hoyoHash))
 
 	hoyo, err := core.FetchAndCache[Hoyo](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {
@@ -212,7 +212,7 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 // Parameters:
 //   - ctx: A context.Context to control the request's timeout or cancellation.
 //   - username: The username of the EnkaNetwork user (must not be empty).
-//   - hoyo_hash: The hash of the hoyo (must not be empty).
+//   - hoyoHash: The hash of the hoyo (must not be empty).
 //
 // Returns:
 //   - AvatarBuildsMap: A map where the key is the avatarID and the value is a slice of builds for that character.
@@ -227,17 +227,17 @@ func (c *Client) GetUserProfileHoyo(ctx context.Context, username string, hoyo_h
 //	    return
 //	}
 //	fmt.Println("avatarBuilds:", avatarBuilds)
-func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, hoyo_hash string) (AvatarBuildsMap, error) {
+func (c *Client) GetUserProfileHoyoBuilds(ctx context.Context, username string, hoyoHash string) (AvatarBuildsMap, error) {
 	if username == "" {
 		return nil, ErrInvalidUsername
 	}
 
-	if hoyo_hash == "" {
+	if hoyoHash == "" {
 		return nil, ErrInvalidHoyoHash
 	}
 
-	key := fmt.Sprintf("user_%s_hoyos_%s_builds", username, hoyo_hash)
-	requestURL := fmt.Sprintf("%s/profile/%s/hoyos/%s/builds", c.BaseURL(), url.PathEscape(username), url.PathEscape(hoyo_hash))
+	key := fmt.Sprintf("user_%s_hoyos_%s_builds", username, hoyoHash)
+	requestURL := fmt.Sprintf("%s/profile/%s/hoyos/%s/builds", c.BaseURL(), url.PathEscape(username), url.PathEscape(hoyoHash))
 
 	builds, err := core.FetchAndCache[AvatarBuildsMap](ctx, c.Fetcher(), requestURL, key, c.Cache())
 	if err != nil {

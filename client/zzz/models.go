@@ -384,12 +384,12 @@ func (p ProfileDetail) MarshalJSON() ([]byte, error) {
 type TitleInfo struct {
 	// I couldn't find any information about these fields in the Enka API documentation.
 	// If you have any information, please let me know.
-	Title       int                        `json:"Title"`       // ??
-	FullTitle   int                        `json:"FullTitle"`   // ??
-	Args        []any                      `json:"Args"`        // ??
+	Title       int                        `json:"Title"`                 // ??
+	FullTitle   int                        `json:"FullTitle"`             // ??
+	Args        []any                      `json:"Args"`                  // ??
 	KMOHDEAKEFG []any                      `json:"KMOHDEAKEFG,omitempty"` // ??
-	Raw         json.RawMessage            `json:"-"`           // Raw contains the original API object
-	Extra       map[string]json.RawMessage `json:"-"`           // Extra contains unknown API fields
+	Raw         json.RawMessage            `json:"-"`                     // Raw contains the original API object
+	Extra       map[string]json.RawMessage `json:"-"`                     // Extra contains unknown API fields
 }
 
 func (t *TitleInfo) UnmarshalJSON(data []byte) error {

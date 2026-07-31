@@ -38,10 +38,9 @@ func TestPreserveUnknownJSONWithoutExtra(t *testing.T) {
 
 func TestPreserveUnknownJSONForStruct(t *testing.T) {
 	type model struct {
-		Known      string `json:"known,omitempty"`
-		Untagged   string
-		Ignored    string `json:"-"`
-		unexported string
+		Known    string `json:"known,omitempty"`
+		Untagged string
+		Ignored  string `json:"-"`
 	}
 
 	raw, extra, err := PreserveUnknownJSONForStruct([]byte(`{"known":"value","Untagged":"tagless","Ignored":"skip","unexported":"skip","future":true}`), model{})
