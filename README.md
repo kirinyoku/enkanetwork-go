@@ -42,6 +42,9 @@ A lightweight Go wrapper for the [EnkaNetwork API](https://api.enka.network/#/ap
 
 ## Installation
 
+> [!IMPORTANT]
+> **Version 1.0.0 Update:** The repository was recently recreated, which caused version caching issues on `pkg.go.dev` with old legacy versions (e.g. `v0.5.5`). To reset the module proxy cache and provide a clean slate, the project has bumped directly to `v1.0.0`. All versions `<= v0.5.5` have been officially retracted.
+
 ```bash
 go get github.com/kirinyoku/enkanetwork-go@latest
 ```
