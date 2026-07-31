@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.0.0] - 2026-07-31
+
+### Changed
+- **Version Bump:** Skipped directly to `v1.0.0` to reset the Go module proxy cache (`pkg.go.dev`) after the repository was recreated.
+- **Stable Release:** Formalized the current API as the stable `1.0.0` release.
+
+### Deprecated
+- **Retracted Legacy Versions:** All versions `<= v0.5.5` (published under the old repository) have been officially retracted in `go.mod` and should no longer be used.
+
 ## [v0.2.0] - 2026-07-30
 
 ### Changed
