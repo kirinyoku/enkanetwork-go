@@ -212,23 +212,9 @@ Useful EnkaNetwork links:
 
 ## Contributing
 
-Contributions are welcome. This project wraps a live API, so bug reports, drift
-reports, fixture updates, model improvements, and documentation fixes are
-especially helpful.
-
-When opening an issue, include:
-
-- The game/client you are using.
-- The UID or endpoint shape involved, if it is safe to share.
-- The error message or unexpected field behavior.
-- The library version or commit.
-
-When opening a pull request:
-
-- Keep changes focused.
-- Add or update tests for behavior changes.
-- Preserve unknown API fields when adding or changing models.
-- Run `go test ./...` before submitting when possible.
+Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md)
+to get started. It covers everything from setting up your environment to
+submitting a pull request — no prior open source experience required.
 
 ## License
 
