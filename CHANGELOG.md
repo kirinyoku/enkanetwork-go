@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.0.1] - 2026-08-01
+
+### Added
+- Added `golangci-lint` configuration and automated CI workflow.
+
+### Fixed
+- Resolved various linting issues across the codebase.
+
 ## [v1.0.0] - 2026-07-31
 
 ### Changed
