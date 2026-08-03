@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.1.0] - 2026-08-03
+
+### Added
+- **Arknights Endfield Client:** Added a complete API wrapper for Arknights Endfield (`client/endfield`).
+  - Includes fully typed models, drift-tolerance via `Extra` maps, custom unmarshaling, and comprehensive unit and integration tests.
+  - Added a detailed, runnable code example for Arknights Endfield (`examples/endfield/main.go`).
+  - Added a daily automated GitHub Action workflow (`api-endfield.yml`) to test integration against live data and detect unannounced schema drift.
+  - Added Arknights Endfield to the README supported games list and included its Live API Status badge.
+
 ## [v1.0.1] - 2026-08-01
 
 ### Added
