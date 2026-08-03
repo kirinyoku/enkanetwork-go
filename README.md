@@ -5,16 +5,27 @@ A lightweight Go wrapper for the [EnkaNetwork API](https://api.enka.network/#/ap
 - **Genshin Impact**
 - **Honkai: Star Rail**
 - **Zenless Zone Zero**
+- **Arknights Endfield**
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/kirinyoku/enkanetwork-go.svg)](https://pkg.go.dev/github.com/kirinyoku/enkanetwork-go)
 [![Go Version](https://img.shields.io/badge/Go-1.20%2B-00ADD8?logo=go)](https://go.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+## Live API Status
+
+The badges below indicate the real-time compatibility of this library with the EnkaNetwork API. Daily automated integration tests are run on real player profiles to detect unplanned changes in the API.
+
+- **`passing`**: The library successfully parses the current live API response. All data structures are fully up-to-date.
+- **`failing`**: The API format has changed (e.g., new fields or modified data types). Due to the library's *Drift Tolerance*, your application will likely continue to function normally (unknown fields are preserved in the `Extra` map). A failing status indicates that the library requires a minor update to map the new fields to Go structs.
+
 [![Genshin API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-genshin.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-genshin.yml)
 [![HSR API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-hsr.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-hsr.yml)
 [![ZZZ API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-zzz.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-zzz.yml)
+[![Endfield API](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-endfield.yml/badge.svg?branch=main)](https://github.com/kirinyoku/enkanetwork-go/actions/workflows/api-endfield.yml)
 
 ## Table of Contents
 
+- [Live API Status](#live-api-status)
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
@@ -83,7 +94,7 @@ func main() {
 ```
 
 > [!NOTE]
-> The library provides similar clients for Honkai: Star Rail and Zenless Zone Zero. You can import them from `github.com/kirinyoku/enkanetwork-go/client/hsr` and `github.com/kirinyoku/enkanetwork-go/client/zzz` respectively, and they share a similar API surface.
+> The library provides similar clients for Honkai: Star Rail, Zenless Zone Zero, and Arknights Endfield. You can import them from `github.com/kirinyoku/enkanetwork-go/client/hsr`, `github.com/kirinyoku/enkanetwork-go/client/zzz`, and `github.com/kirinyoku/enkanetwork-go/client/endfield`, respectively, and they share a similar API surface.
 
 Full runnable examples are available in [`examples/`](examples).
 
