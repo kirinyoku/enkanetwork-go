@@ -185,6 +185,52 @@ func TestBuildAvatarDataUsesHoyoTypeForZZZ(t *testing.T) {
 	}
 }
 
+func TestBuildAvatarDataUsesHoyoTypeForEndfield(t *testing.T) {
+	data := []byte(`{"id":4,"name":"Endfield build","avatar_id":"4001","avatar_data":{"templateId":4001,"level":50,"exp":1234,"potentialLevel":1},"settings":{},"image":null,"order":"0.0000000000","hoyo_type":3}`)
+
+	var build Build
+	if err := json.Unmarshal(data, &build); err != nil {
+		t.Fatalf("failed to unmarshal build: %v", err)
+	}
+	if build.HoyoType != HoyoTypeArknightsEndfield {
+		t.Fatalf("hoyo type = %d, want %d", build.HoyoType, HoyoTypeArknightsEndfield)
+	}
+	if build.AvatarData.Genshin != nil {
+		t.Fatal("expected Genshin avatar data to stay nil")
+	}
+	if build.AvatarData.HSR != nil {
+		t.Fatal("expected HSR avatar data to stay nil")
+	}
+	if build.AvatarData.ZZZ != nil {
+		t.Fatal("expected ZZZ avatar data to stay nil")
+	}
+	if build.AvatarData.Endfield == nil {
+		t.Fatal("expected Endfield avatar data to be populated")
+	}
+	if build.AvatarData.Endfield.TemplateID != 4001 || build.AvatarData.Endfield.Level != 50 {
+		t.Fatalf("unexpected Endfield avatar data: %+v", build.AvatarData.Endfield)
+	}
+
+	got, err := json.Marshal(build)
+	if err != nil {
+		t.Fatalf("failed to marshal build: %v", err)
+	}
+	var gotFields map[string]json.RawMessage
+	if err := json.Unmarshal(got, &gotFields); err != nil {
+		t.Fatalf("failed to unmarshal marshaled build: %v", err)
+	}
+	var avatarData map[string]any
+	if err := json.Unmarshal(gotFields["avatar_data"], &avatarData); err != nil {
+		t.Fatalf("failed to unmarshal marshaled avatar_data: %v", err)
+	}
+	if _, ok := avatarData["endfield"]; ok {
+		t.Fatalf("avatar_data contains nested endfield wrapper: %s", gotFields["avatar_data"])
+	}
+	if avatarData["templateId"] != float64(4001) {
+		t.Fatalf("avatar_data templateId = %v, want 4001", avatarData["templateId"])
+	}
+}
+
 func TestBuildAvatarDataPreservesRawForUnknownHoyoType(t *testing.T) {
 	data := []byte(`{"id":3,"name":"future build","avatar_id":"9001","avatar_data":{"future":true,"value":9001},"settings":{},"image":null,"order":"0.0000000000","hoyo_type":9}`)
 

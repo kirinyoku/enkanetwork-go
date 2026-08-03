@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/kirinyoku/enkanetwork-go/client/endfield"
 	"github.com/kirinyoku/enkanetwork-go/client/genshin"
 	"github.com/kirinyoku/enkanetwork-go/client/hsr"
 	"github.com/kirinyoku/enkanetwork-go/client/zzz"
@@ -116,6 +117,12 @@ func (b *Build) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		b.AvatarData.ZZZ = &avatar
+	case HoyoTypeArknightsEndfield:
+		var avatar endfield.CharData
+		if err := json.Unmarshal(decoded.AvatarData, &avatar); err != nil {
+			return err
+		}
+		b.AvatarData.Endfield = &avatar
 	}
 
 	return nil
@@ -124,10 +131,11 @@ func (b *Build) UnmarshalJSON(data []byte) error {
 // AvatarDataWrapper is a container struct that holds character data from different game clients.
 // It is designed to support multiple games while maintaining a unified interface.
 type AvatarDataWrapper struct {
-	Genshin *genshin.AvatarInfo `json:"genshin,omitempty"` // Genshin holds character data specific to Genshin Impact
-	HSR     *hsr.AvatarDetail   `json:"hsr,omitempty"`     // HSR holds character data specific to Honkai: Star Rail
-	ZZZ     *zzz.AvatarData     `json:"zzz,omitempty"`     // ZZZ holds character data specific to Zenless Zone Zero
-	Raw     json.RawMessage     `json:"-"`                 // Raw contains the original JSON data for custom unmarshaling or debugging purposes
+	Genshin  *genshin.AvatarInfo `json:"genshin,omitempty"`  // Genshin holds character data specific to Genshin Impact
+	HSR      *hsr.AvatarDetail   `json:"hsr,omitempty"`      // HSR holds character data specific to Honkai: Star Rail
+	ZZZ      *zzz.AvatarData     `json:"zzz,omitempty"`      // ZZZ holds character data specific to Zenless Zone Zero
+	Endfield *endfield.CharData  `json:"endfield,omitempty"` // Endfield holds character data specific to Arknights Endfield
+	Raw      json.RawMessage     `json:"-"`                  // Raw contains the original JSON data for custom unmarshaling or debugging purposes
 }
 
 // UnmarshalJSON preserves raw avatar data when no build-level hoyo_type is available.
@@ -135,6 +143,7 @@ func (a *AvatarDataWrapper) UnmarshalJSON(data []byte) error {
 	a.Genshin = nil
 	a.HSR = nil
 	a.ZZZ = nil
+	a.Endfield = nil
 	a.Raw = append(a.Raw[:0], data...)
 	return nil
 }
@@ -156,6 +165,10 @@ func (a AvatarDataWrapper) MarshalJSON() ([]byte, error) {
 
 	if a.ZZZ != nil {
 		return json.Marshal(a.ZZZ)
+	}
+
+	if a.Endfield != nil {
+		return json.Marshal(a.Endfield)
 	}
 
 	if len(a.Raw) > 0 {
