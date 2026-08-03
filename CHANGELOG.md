@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.1.1] - 2026-08-03
+
+### Fixed
+- **Enka Client:** Added missing `Arknights Endfield` support to `AvatarDataWrapper` in the global `client/enka` package. Endfield characters fetched from a global EnkaNetwork profile are now correctly decoded into `avatar.Endfield` instead of being left in raw JSON.
+
 ## [v1.1.0] - 2026-08-03
 
 ### Added
