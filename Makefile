@@ -16,7 +16,7 @@ test:
 ci: lint test
 
 ## integration: Run all integration tests against the live API.
-integration: integration-genshin integration-hsr integration-zzz integration-enka
+integration: integration-genshin integration-hsr integration-zzz integration-endfield integration-enka
 
 ## integration-genshin: Run Genshin Impact integration tests.
 integration-genshin:
@@ -29,6 +29,10 @@ integration-hsr:
 ## integration-zzz: Run Zenless Zone Zero integration tests.
 integration-zzz:
 	RUN_INTEGRATION_TESTS=true go test -v -race -timeout=5m -tags=integration ./client/zzz/...
+
+## integration-endfield: Run Arknights Endfield integration tests.
+integration-endfield:
+	RUN_INTEGRATION_TESTS=true go test -v -race -timeout=5m -tags=integration ./client/endfield/...
 
 ## integration-enka: Run EnkaNetwork profile integration tests.
 integration-enka:

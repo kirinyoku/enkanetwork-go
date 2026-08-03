@@ -1,0 +1,96 @@
+{
+  "playerInfo": {
+    "businessCard": {
+      "name": "aether",
+      "shortId": "9483",
+      "gender": 2,
+      "businessCardTopicId": 14,
+      "signature": "takin' it easy",
+      "userAvatarId": 35,
+      "userAvatarFrameId": 6,
+      "adventureLevel": 59,
+      "worldLevel": 7,
+      "mainMissionId": "e10m4d5",
+      "createTime": 1769239578,
+      "platformRoleId": "6105392891",
+      "domainDev": {
+        "domains": [
+          { "domainId": "domain_1", "level": 11 },
+          { "domainId": "domain_2", "level": 7 }
+        ]
+      },
+      "achievement": {
+        "display": [
+          { "key": 6, "value": 51 },
+          { "key": 1, "value": 122 }
+        ],
+        "infoList": [
+          { "achieveNumId": 122, "level": 2, "isPlated": true }
+        ]
+      },
+      "statistic": { "charNum": 23, "weaponNum": 45, "docNum": 314 },
+      "charList": [
+        { "templateId": "chr_0029_pograni", "level": 90, "potentialLevel": 2 },
+        { "templateId": "chr_0033_camille", "level": 90, "potentialLevel": 1 }
+      ],
+      "contingencyContractBestRecord": { "activityId": 53, "bestScore": 1 },
+      "businessCardExpandFlag": true
+    },
+    "charData": [
+      {
+        "templateId": 43,
+        "level": 90,
+        "exp": 0,
+        "potentialLevel": 2,
+        "equip": [
+          { "key": 2, "value": { "templateid": 2846, "enhance": [] } }
+        ],
+        "weapon": {
+          "templateId": 3272,
+          "exp": 5030,
+          "weaponLv": 90,
+          "refineLv": 0,
+          "breakthroughLv": 4,
+          "attachedGem": {
+            "templateId": 1070,
+            "totalCost": 0,
+            "terms": [
+              { "termNumId": 51, "cost": 1 }
+            ],
+            "domainId": 1
+          }
+        },
+        "skillInfo": {
+          "levelInfo": [
+            { "skillId": "chr_0029_pograni_NormalAttack", "skillLevel": 9, "skillMaxLevel": 12, "skillEnhancedLevel": 9 }
+          ],
+          "normalSkill": "chr_0029_pograni_NormalSkill",
+          "ultimateSkill": "chr_0029_pograni_UltimateSkill",
+          "comboSkill": "chr_0029_pograni_ComboSkill",
+          "dispNormalAttackSkill": "chr_0029_pograni_NormalAttack"
+        },
+        "equipMedicineId": 310,
+        "talent": {
+          "latestBreakNode": "charBreak70",
+          "attrNodes": [ "chr_0029_pograni_1" ],
+          "latestPassiveSkillNodes": [ "chr_0029_pograni_passive_skill_0_2" ],
+          "latestFactorySkillNodes": [ "fac_chr_0029_pograni_0_2" ]
+        },
+        "potentialCg": []
+      }
+    ]
+  },
+  "uid": "6105392891",
+  "ttl": 42,
+  "owner": {
+    "hash": "2xbklW",
+    "id": 68,
+    "profile": {
+      "bio": "Some day, perhaps, remembering even this will be a pleasure.",
+      "level": 3,
+      "avatar": "https://cdn.enka.network/avatars/2c94e523706fb9aed33ea547d076a998/245eee801744d1512264e0a921d1b557.png?69df276f58"
+    },
+    "username": "orion"
+  },
+  "region": "EU/NA"
+}
