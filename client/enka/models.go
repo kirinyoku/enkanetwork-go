@@ -12,6 +12,56 @@ import (
 	"github.com/kirinyoku/enkanetwork-go/models"
 )
 
+// ------------------------------------------IMPORTANT------------------------------------------
+// For detailed information on properties, refer to the EnkaNetwork API — Enka.Network Profiles
+// documentation (https://github.com/EnkaNetwork/API-docs/blob/master/docs/enka/api.md).
+// ---------------------------------------------------------------------------------------------
+//
+// Owner
+// ├── id
+// ├── is_staff
+// ├── hash
+// ├── username
+// └── profile (*PatreonProfile)
+//     ├── bio
+//     ├── level
+//     ├── avatar
+//     └── image_url
+//
+// Hoyo
+// ├── user (*Owner)
+// ├── uid
+// ├── uid_public
+// ├── public
+// ├── live_public
+// ├── verified
+// ├── player_info
+// ├── hash
+// ├── region
+// ├── order
+// ├── avatar_order
+// ├── hoyo_type
+// └── live_data_hash
+//
+// Build
+// ├── id
+// ├── name
+// ├── avatar_id
+// ├── owner
+// ├── avatar_data (*AvatarDataWrapper)
+// ├── live
+// ├── settings (*Settings)
+// │   ├── adaptiveColor
+// │   ├── artSource
+// │   ├── caption
+// │   ├── honkardWidth
+// │   └── transform
+// ├── public
+// ├── image
+// ├── hoyo
+// ├── order
+// └── hoyo_type
+
 // AvatarBuildsMap is a map where the key is the avatarID and the value is a slice
 // of builds for that character, returned in random order. Each build includes an
 // "order" field that can be used to sort them for display.
@@ -22,7 +72,7 @@ func (a AvatarBuildsMap) CacheTTL() time.Duration {
 	return 5 * time.Minute
 }
 
-// HoyoType identifies which game/account type a Hoyo account or build belongs to.
+// HoyoType identifies which game an account or build belongs to.
 // The API field is named "hoyo_type" even for non-HoYoverse games.
 type HoyoType int
 
@@ -35,24 +85,31 @@ const (
 
 // Build contains information about a specific character build.
 type Build struct {
-	ID       int    `json:"id,omitempty"`        // ID of the build
-	Name     string `json:"name,omitempty"`      // Name of the build
-	AvatarID string `json:"avatar_id,omitempty"` // ID of the avatar (character/agent)
-	Owner    string `json:"owner,omitempty"`     // Owner identifier associated with the build
+	// ID is the ID of the build.
+	ID int `json:"id,omitempty"`
+	// Name is the name of the build.
+	Name string `json:"name,omitempty"`
+	// AvatarID is the ID of the avatar (character/agent).
+	AvatarID string `json:"avatar_id,omitempty"`
+	// Owner is the owner identifier associated with the build.
+	Owner string `json:"owner,omitempty"`
 	// AvatarData contains character information for supported games. Unsupported
 	// game payloads are preserved as raw JSON.
 	AvatarData AvatarDataWrapper `json:"avatar_data"`
-	// If a build has a live: true field, it indicates that it is not a saved build but
-	// one retrieved from the game’s showcase when the "refresh" button is clicked.
-	// During an update, all old live builds are deleted, and new ones are created.
-	// Updates are user-initiated, so this data may not be up to date
-	Live     *bool    `json:"live,omitempty"`
-	Settings Settings `json:"settings"`         // Settings contains build-specific configuration data
-	Public   *bool    `json:"public,omitempty"` // Whether the build is public
-	Image    *string  `json:"image"`            // URL of the build image
-	Hoyo     string   `json:"hoyo,omitempty"`   // Unique hoyo identifier (hoyo_hash)
-	Order    string   `json:"order,omitempty"`  // Order of the saved build on the Enka
-	HoyoType HoyoType `json:"hoyo_type"`        // API game/account type discriminator
+	// Live indicates that it is not a saved build but one retrieved from the game’s showcase when the "refresh" button is clicked. During an update, all old live builds are deleted, and new ones are created. Updates are user-initiated, so this data may not be up to date.
+	Live *bool `json:"live,omitempty"`
+	// Settings contains build-specific configuration data.
+	Settings Settings `json:"settings"`
+	// Public indicates whether the build is public.
+	Public *bool `json:"public,omitempty"`
+	// Image is the URL of the build image.
+	Image *string `json:"image"`
+	// Hoyo is the unique hoyo identifier (hoyo_hash).
+	Hoyo string `json:"hoyo,omitempty"`
+	// Order is the order of the saved build on the Enka.
+	Order string `json:"order,omitempty"`
+	// HoyoType is the game type discriminator (0: Genshin, 1: HSR, 2: ZZZ, 3: Arknights Endfield).
+	HoyoType HoyoType `json:"hoyo_type"`
 }
 
 // UnmarshalJSON decodes avatar_data using the build's hoyo_type discriminator.
@@ -131,11 +188,16 @@ func (b *Build) UnmarshalJSON(data []byte) error {
 // AvatarDataWrapper is a container struct that holds character data from different game clients.
 // It is designed to support multiple games while maintaining a unified interface.
 type AvatarDataWrapper struct {
-	Genshin  *genshin.AvatarInfo `json:"genshin,omitempty"`  // Genshin holds character data specific to Genshin Impact
-	HSR      *hsr.AvatarDetail   `json:"hsr,omitempty"`      // HSR holds character data specific to Honkai: Star Rail
-	ZZZ      *zzz.AvatarData     `json:"zzz,omitempty"`      // ZZZ holds character data specific to Zenless Zone Zero
-	Endfield *endfield.CharData  `json:"endfield,omitempty"` // Endfield holds character data specific to Arknights Endfield
-	Raw      json.RawMessage     `json:"-"`                  // Raw contains the original JSON data for custom unmarshaling or debugging purposes
+	// Genshin holds character data specific to Genshin Impact.
+	Genshin *genshin.AvatarInfo `json:"genshin,omitempty"`
+	// HSR holds character data specific to Honkai: Star Rail.
+	HSR *hsr.AvatarDetail `json:"hsr,omitempty"`
+	// ZZZ holds character data specific to Zenless Zone Zero.
+	ZZZ *zzz.AvatarData `json:"zzz,omitempty"`
+	// Endfield holds character data specific to Arknights Endfield.
+	Endfield *endfield.CharData `json:"endfield,omitempty"`
+	// Raw contains the original JSON data for custom unmarshaling or debugging purposes.
+	Raw json.RawMessage `json:"-"`
 }
 
 // UnmarshalJSON preserves raw avatar data when no build-level hoyo_type is available.
@@ -152,7 +214,7 @@ func (a *AvatarDataWrapper) UnmarshalJSON(data []byte) error {
 // for the AvatarDataWrapper. This method serializes the appropriate game-specific
 // avatar data based on which field is populated.
 //
-// The method checks each game-specific field in order of priority (Genshin -> HSR -> ZZZ),
+// The method checks each game-specific field in order of priority (Genshin -> HSR -> ZZZ -> Endfield),
 // then falls back to the preserved raw JSON. If no data is present, it returns null.
 func (a AvatarDataWrapper) MarshalJSON() ([]byte, error) {
 	if a.Genshin != nil {
@@ -198,21 +260,36 @@ type PatreonProfile = models.PatreonProfile
 
 // Hoyo contains information about a specific Hoyo account.
 type Hoyo struct {
-	User         *Owner                     `json:"user,omitempty"`           // User information
-	UID          *int                       `json:"uid,omitempty"`            // UID of the game account, when the API provides it
-	UIDPublic    *bool                      `json:"uid_public,omitempty"`     // Whether the UID is public
-	Public       *bool                      `json:"public,omitempty"`         // Whether the Hoyo account is public
-	LivePublic   *bool                      `json:"live_public,omitempty"`    // Whether the live build is public
-	Verified     *bool                      `json:"verified,omitempty"`       // Whether the Hoyo account is verified
-	PlayerInfo   *models.PlayerInfo         `json:"player_info,omitempty"`    // Player information for the account
-	Hash         string                     `json:"hash,omitempty"`           // Hash of the game account
-	Region       string                     `json:"region,omitempty"`         // Region of the game account
-	Order        string                     `json:"order"`                    // Order of the Hoyo account
-	AvatarOrder  map[string]int             `json:"avatar_order"`             // Order of the characters in the game account
-	HoyoType     HoyoType                   `json:"hoyo_type"`                // API game/account type discriminator
-	LiveDataHash int                        `json:"live_data_hash,omitempty"` // Hash of the live data for the account
-	Raw          json.RawMessage            `json:"-"`                        // Raw contains the original API response
-	Extra        map[string]json.RawMessage `json:"-"`                        // Extra contains unknown API fields
+	// User is the user information.
+	User *Owner `json:"user,omitempty"`
+	// UID is the UID of the game account, when the API provides it.
+	UID *int `json:"uid,omitempty"`
+	// UIDPublic indicates whether the UID is public.
+	UIDPublic *bool `json:"uid_public,omitempty"`
+	// Public indicates whether the Hoyo account is public.
+	Public *bool `json:"public,omitempty"`
+	// LivePublic indicates whether the live build is public.
+	LivePublic *bool `json:"live_public,omitempty"`
+	// Verified indicates whether the Hoyo account is verified.
+	Verified *bool `json:"verified,omitempty"`
+	// PlayerInfo is the player information for the account.
+	PlayerInfo *models.PlayerInfo `json:"player_info,omitempty"`
+	// Hash is the hash of the game account.
+	Hash string `json:"hash,omitempty"`
+	// Region is the region of the game account.
+	Region string `json:"region,omitempty"`
+	// Order is the order of the Hoyo account.
+	Order string `json:"order"`
+	// AvatarOrder is the order of the characters in the game account.
+	AvatarOrder map[string]int `json:"avatar_order"`
+	// HoyoType is the API game/account type discriminator.
+	HoyoType HoyoType `json:"hoyo_type"`
+	// LiveDataHash is the hash of the live data for the account.
+	LiveDataHash int `json:"live_data_hash,omitempty"`
+	// Raw contains the original API response.
+	Raw json.RawMessage `json:"-"`
+	// Extra contains unknown API fields.
+	Extra map[string]json.RawMessage `json:"-"`
 }
 
 // UnmarshalJSON preserves unknown top-level fields for API drift tolerance.
@@ -262,9 +339,14 @@ func (h Hoyo) CacheTTL() time.Duration {
 
 // Settings represents build-specific configuration options.
 type Settings struct {
-	AdaptiveColor *bool    `json:"adaptiveColor,omitempty"` // Whether adaptive color is enabled
-	ArtSource     *string  `json:"artSource,omitempty"`     // Source of the image
-	Caption       *string  `json:"caption,omitempty"`       // Caption of the build
-	HonkardWidth  *float64 `json:"honkardWidth,omitempty"`  // Width of the image
-	Transform     *string  `json:"transform,omitempty"`     // Transformation applied to the image
+	// AdaptiveColor indicates whether adaptive color is enabled.
+	AdaptiveColor *bool `json:"adaptiveColor,omitempty"`
+	// ArtSource is the source of the image.
+	ArtSource *string `json:"artSource,omitempty"`
+	// Caption is the caption of the build.
+	Caption *string `json:"caption,omitempty"`
+	// HonkardWidth is the width of the image.
+	HonkardWidth *float64 `json:"honkardWidth,omitempty"`
+	// Transform is the transformation applied to the image.
+	Transform *string `json:"transform,omitempty"`
 }

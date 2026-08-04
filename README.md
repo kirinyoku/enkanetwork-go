@@ -212,6 +212,8 @@ Sometimes the API returns a value as a string (`"123"`), but later changes it to
 
 - [API reference on pkg.go.dev](https://pkg.go.dev/github.com/kirinyoku/enkanetwork-go)
 - [Examples](examples)
+- [Enka.Network Profiles API](docs/enka/api.md)
+- [Zenless Zone Zero API](docs/zzz/api.md)
 - [Changelog](CHANGELOG.md)
 
 Useful EnkaNetwork links:
