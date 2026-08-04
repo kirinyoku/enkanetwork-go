@@ -1,6 +1,10 @@
 # Changelog
 
-## [v1.1.1] - 2026-08-03
+## [v1.1.2] - 2026-08-04
+
+### Changed
+- **Documentation:** Added local API documentation reference files for Enka.Network Profiles (`docs/enka/api.md`) and Zenless Zone Zero (`docs/zzz/api.md`).
+- **Models Formatting:** Refactored struct and field comments in `client/zzz/models.go` and `client/enka/models.go`.
 
 ### Fixed
 - **Enka Client:** Added missing `Arknights Endfield` support to `AvatarDataWrapper` in the global `client/enka` package. Endfield characters fetched from a global EnkaNetwork profile are now correctly decoded into `avatar.Endfield` instead of being left in raw JSON.
