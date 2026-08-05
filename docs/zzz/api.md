@@ -238,16 +238,28 @@ Refer to the table below and [store/zzz/property.json](https://raw.githubusercon
 | `23101` | Pen Ratio `[Base]` | `31803` | Electric DMG Bonus `[Flat]` |
 | `23103` | Pen Ratio `[Flat]` | `31901` | Ether DMG Bonus `[Base]` |
 | `23201` | PEN  `[Base]` | `31903` | Ether DMG Bonus `[Flat]` |
-| `23203` | PEN `[Flat]` | | |
+| `23203` | PEN `[Flat]` | `32301` | Wind DMG Bonus `[Base]` |
+| | | `32303` | Wind DMG Bonus `[Flat]` |
 
 ### Badge Type 
 
 | Type | Description |
 | :--- | :---------- |
-| `1` | Shiyu Defense |
+| `1` | Shiyu Defense: Adaption |
 | `2` | Simulated Battle Tower |
-| `3` | Deadly Assault |
-| `4` | Simulated Battle Tower - Last Stand | 
+| `3` | Deadly Assault: Line Breaker |
+| `4` | Endless Last Stand |
+| `5` | Blessed by Glory |
+| `6` | Shiyu Defense: Lingering Sun |
+| `7` | Deadly Assault: Disintegration |
+| `8` | More Than One Detective! |
+| `9` | Pathfinder |
+| `10` | Crowned by Waves |
+| `11` | Annihilation |
+| `12` | Simulated Annihilation |
+| `13` | Bagel Plan |
+| `14` | Deadly Assault: Purge |
+| `15` | Deadly Assault: Annihilator |
 
 ### Skills
 
