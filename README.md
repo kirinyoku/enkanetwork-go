@@ -7,6 +7,9 @@ A lightweight Go wrapper for the [EnkaNetwork API](https://api.enka.network/#/ap
 - **Zenless Zone Zero**
 - **Arknights Endfield**
 
+> [!NOTE]
+> Think of this as a typed HTTP client for EnkaNetwork API. It handles requests and maps responses to Go structs, nothing more. The idea is that you build your own game-specific library on top. If you need one for Zenless Zone Zero, check out [fairy](https://github.com/kirinyoku/fairy).
+
 [![Go Reference](https://pkg.go.dev/badge/github.com/kirinyoku/enkanetwork-go.svg)](https://pkg.go.dev/github.com/kirinyoku/enkanetwork-go)
 [![Go Version](https://img.shields.io/badge/Go-1.20%2B-00ADD8?logo=go)](https://go.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
