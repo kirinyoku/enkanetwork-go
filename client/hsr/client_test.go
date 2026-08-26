@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/kirinyoku/enkanetwork-go/internal/core"
 )
@@ -42,8 +43,11 @@ func TestGetProfileNotFound(t *testing.T) {
 		t.Skip("skipping integration test; set RUN_INTEGRATION_TESTS=true to run")
 	}
 
-	client := New(Options{UserAgent: "test-agent"})
-	_, err := client.GetProfile(context.Background(), "987654321")
+	client := New(Options{
+		UserAgent:  "test-agent",
+		HTTPClient: &http.Client{Timeout: 30 * time.Second},
+	})
+	_, err := client.GetProfile(context.Background(), "800000001")
 	if err != ErrPlayerNotFound {
 		t.Errorf("expected ErrPlayerNotFound, got %v", err)
 	}
@@ -58,7 +62,10 @@ func TestGetProfile(t *testing.T) {
 
 	ctx := context.Background()
 	uid := "807752192"
-	client := New(Options{UserAgent: "test-agent"})
+	client := New(Options{
+		UserAgent:  "test-agent",
+		HTTPClient: &http.Client{Timeout: 30 * time.Second},
+	})
 
 	profile, err := client.GetProfile(ctx, uid)
 	if err != nil {
