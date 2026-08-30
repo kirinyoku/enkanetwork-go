@@ -65,7 +65,7 @@ func NewFetcher(client *http.Client, userAgent string, retry RetryOptions) *Fetc
 // For other error status codes, it returns immediately with the corresponding error.
 func FetchWithRetry[T any](ctx context.Context, f *Fetcher, url string) (*T, error) {
 	for attempt := 0; attempt < f.maxAttempts; attempt++ {
-		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -85,7 +85,7 @@ func FetchWithRetry[T any](ctx context.Context, f *Fetcher, url string) (*T, err
 
 			var result T
 			if err := json.Unmarshal(body, &result); err != nil {
-				return nil, fmt.Errorf("failed to decode profile: %w", err)
+				return nil, fmt.Errorf("failed to decode response: %w", err)
 			}
 
 			return &result, nil

@@ -1,6 +1,6 @@
 package models
 
-// AvatarDetail contains detailed character information for Honkai: Star Rail
+// AvatarDetail contains detailed character information for Honkai: Star Rail.
 type AvatarDetail struct {
 	Pos           int         `json:"pos,omitempty"`           // Character position
 	Rank          int         `json:"rank,omitempty"`          // Character rank
@@ -13,7 +13,7 @@ type AvatarDetail struct {
 	SkillTreeList []SkillTree `json:"skillTreeList,omitempty"` // List of skill tree nodes
 }
 
-// SkillTree represents a skill tree node for a character in Honkai: Star Rail
+// SkillTree represents a skill tree node for a character in Honkai: Star Rail.
 type SkillTree struct {
 	Level   int `json:"level,omitempty"`   // Node level
 	PointID int `json:"pointId,omitempty"` // Node point ID

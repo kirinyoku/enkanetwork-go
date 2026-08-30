@@ -211,8 +211,8 @@ type ProfileDetail struct {
 // TitleInfo contains title-related information for Zenless Zone Zero.
 type TitleInfo struct {
 	Title       int   `json:"Title,omitempty"`       // Title ID
-	ECJPEHHALAO int   `json:"ECJPEHHALAO,omitempty"` // ????????
-	HFKHLLBMPHM []any `json:"HFKHLLBMPHM,omitempty"` // ????????
+	ECJPEHHALAO int   `json:"ECJPEHHALAO,omitempty"` // Unmapped game metadata field preserved for API compatibility
+	HFKHLLBMPHM []any `json:"HFKHLLBMPHM,omitempty"` // Unmapped game metadata field preserved for API compatibility
 }
 
 // ShowAvatarInfo contains information about a character displayed in the player's showcase.

@@ -206,7 +206,7 @@ func (a *AvatarDataWrapper) UnmarshalJSON(data []byte) error {
 	a.HSR = nil
 	a.ZZZ = nil
 	a.Endfield = nil
-	a.Raw = append(a.Raw[:0], data...)
+	a.Raw = append(json.RawMessage(nil), data...)
 	return nil
 }
 

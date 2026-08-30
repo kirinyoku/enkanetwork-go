@@ -151,7 +151,7 @@ func (c *Client) GetUserProfileHoyos(ctx context.Context, username string) (Hoyo
 // Parameters:
 //   - ctx: A context.Context to control the request's timeout or cancellation.
 //   - username: The username of the EnkaNetwork user (must not be empty).
-//   - hoyo_hash: The hash of the hoyo (must not be empty).
+//   - hoyoHash: The hash of the hoyo (must not be empty).
 //
 // Returns:
 //   - *Hoyo: A pointer to the hoyo data if successful.

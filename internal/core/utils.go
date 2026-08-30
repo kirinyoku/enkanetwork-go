@@ -2,7 +2,7 @@ package core
 
 import "encoding/json"
 
-// isValidUID checks if the provided UID is a valid 9-digit number.
+// IsValidUID checks if the provided UID is a valid 9-digit number.
 // Genshin and HSR UID can only be 9 digits (e.g., "618285856").
 // This function is used internally to validate UIDs before making requests.
 //
@@ -23,7 +23,7 @@ func IsValidUID(uid string) bool {
 	return true
 }
 
-// removeTTLField removes the TTL field from the JSON response.
+// RemoveTTLField removes the TTL field from the JSON response.
 // This is used for tests to ensure the response is consistent.
 func RemoveTTLField(jsonBytes []byte) []byte {
 	var profile map[string]any
@@ -33,6 +33,9 @@ func RemoveTTLField(jsonBytes []byte) []byte {
 
 	delete(profile, "ttl")
 
-	newJSON, _ := json.Marshal(profile)
+	newJSON, err := json.Marshal(profile)
+	if err != nil {
+		return jsonBytes
+	}
 	return newJSON
 }

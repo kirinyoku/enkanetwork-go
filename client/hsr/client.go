@@ -72,9 +72,8 @@ func New(options Options) *Client {
 //	    fmt.Println("Error:", err)
 //	    return
 //	}
-//
-// fmt.Println("Player Nickname:", profile.DetailInfo.Nickname)
-// fmt.Println("World Level:", profile.DetailInfo.WorldLevel)
+//	fmt.Println("Player Nickname:", profile.DetailInfo.Nickname)
+//	fmt.Println("World Level:", profile.DetailInfo.WorldLevel)
 func (c *Client) GetProfile(ctx context.Context, uid string) (*Profile, error) {
 	if !core.IsValidUID(uid) {
 		return nil, ErrInvalidUIDFormat
