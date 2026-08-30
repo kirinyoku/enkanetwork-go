@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.1.3] - 2026-08-30
+
+### Changed
+- **Core:** Standardized HTTP method constants, generalized generic decode error messages, and improved error handling in test helpers.
+- **Documentation:** Fixed doc comments on exported utilities and types, corrected doc parameter names, and improved godoc example formatting.
+
+### Fixed
+- **Enka Client:** Fixed buffer aliasing in `AvatarDataWrapper.UnmarshalJSON` by copying raw JSON bytes defensively.
+
 ## [v1.1.2] - 2026-08-04
 
 ### Changed
