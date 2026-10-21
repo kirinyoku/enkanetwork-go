@@ -119,6 +119,44 @@ func TestOptionalBoolAbsenceIsPreserved(t *testing.T) {
 	assertJSONEqual(t, data, got)
 }
 
+func TestMedalScorePresenceIsPreserved(t *testing.T) {
+	data := []byte(`{"Value":9,"MedalIcon":3001,"MedalType":3,"MedalScore":0}`)
+
+	var medal Medal
+	if err := json.Unmarshal(data, &medal); err != nil {
+		t.Fatalf("failed to unmarshal medal: %v", err)
+	}
+	if medal.MedalScore == nil || *medal.MedalScore != 0 {
+		t.Fatalf("expected MedalScore to be 0, got %v", medal.MedalScore)
+	}
+
+	got, err := json.Marshal(medal)
+	if err != nil {
+		t.Fatalf("failed to marshal medal: %v", err)
+	}
+
+	assertJSONEqual(t, data, got)
+}
+
+func TestMedalScoreAbsenceIsPreserved(t *testing.T) {
+	data := []byte(`{"Value":9,"MedalIcon":3001,"MedalType":3}`)
+
+	var medal Medal
+	if err := json.Unmarshal(data, &medal); err != nil {
+		t.Fatalf("failed to unmarshal medal: %v", err)
+	}
+	if medal.MedalScore != nil {
+		t.Fatalf("expected MedalScore to be nil, got %v", medal.MedalScore)
+	}
+
+	got, err := json.Marshal(medal)
+	if err != nil {
+		t.Fatalf("failed to marshal medal: %v", err)
+	}
+
+	assertJSONEqual(t, data, got)
+}
+
 func TestValidationDoesNotRequireNetwork(t *testing.T) {
 	client := New(Options{UserAgent: "test-agent"})
 

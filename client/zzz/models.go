@@ -439,7 +439,7 @@ type Medal struct {
 	// MedalType is the Badge Category/Type (e.g., Shiyu Defense, Hollow Zero) (see https://github.com/EnkaNetwork/API-docs/blob/master/store/zzz/medals.json).
 	MedalType int `json:"MedalType"`
 	// MedalScore is an additional score metric for the badge (e.g., Endless Tower points or specific challenge score).
-	MedalScore int `json:"MedalScore"`
+	MedalScore *int `json:"MedalScore,omitempty"`
 }
 
 // ProfileDetail contains detailed player profile information.

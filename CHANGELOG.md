@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.1.4] - 2026-10-21
+
+### Fixed
+- **ZZZ Client:** Made `MedalScore` in `Medal` an optional pointer (`*int`) with `omitempty` to handle badges without score metrics and prevent schema mismatches following the Zenless Zone Zero 3.3 update and EnkaNetwork maintenance.
+
 ## [v1.1.3] - 2026-08-30
 
 ### Changed

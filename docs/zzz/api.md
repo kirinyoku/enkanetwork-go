@@ -110,7 +110,7 @@ Profile
 | MedalType | `int` | Badge Category/Type (e.g., Shiyu Defense, Hollow Zero) (check [store/zzz/medals.json](https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/zzz/medals.json) and [Badge Type](#badge-type)). |
 | Value | `int` | Progress number or tier associated with the badge. |
 | MedalIcon | `int` | ID of the visual icon used for the badge (check [store/zzz/medals.json](https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/zzz/medals.json)). | 
-| MedalScore | `int` | Additional score metric for the badge (e.g., Endless Ascension points or specific challenge score). |
+| MedalScore | `*int` | Additional score metric for the badge (e.g., Endless Ascension points or specific challenge score). |
 
 ---
 
