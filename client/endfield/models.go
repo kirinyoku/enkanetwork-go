@@ -218,8 +218,33 @@ type EquipEntry struct {
 }
 
 type Equip struct {
-	TemplateID int   `json:"templateid"`
-	Enhance    []any `json:"enhance"`
+	TemplateID       int                        `json:"templateid"`
+	Enhance          []any                      `json:"enhance"`
+	CraftCostGoldID  *int                       `json:"craftCostGoldId,omitempty"`
+	CraftCostGoldNum *int                       `json:"craftCostGoldNum,omitempty"`
+	Raw              json.RawMessage            `json:"-"`
+	Extra            map[string]json.RawMessage `json:"-"`
+}
+
+func (e *Equip) UnmarshalJSON(data []byte) error {
+	type Alias Equip
+	var alias Alias
+	if err := json.Unmarshal(data, &alias); err != nil {
+		return err
+	}
+	raw, extra, err := core.PreserveUnknownJSONForStruct(data, Alias{})
+	if err != nil {
+		return err
+	}
+	alias.Raw = raw
+	alias.Extra = extra
+	*e = Equip(alias)
+	return nil
+}
+
+func (e Equip) MarshalJSON() ([]byte, error) {
+	type Alias Equip
+	return core.MergeKnownExtraAndRawJSON(Alias(e), e.Extra, e.Raw)
 }
 
 type Weapon struct {

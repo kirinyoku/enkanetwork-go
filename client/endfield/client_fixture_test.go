@@ -56,6 +56,37 @@ func TestEquipPreservesCraftCostAndUnknownFields(t *testing.T) {
 	if err := json.Unmarshal(data, &equip); err != nil {
 		t.Fatalf("failed to unmarshal equip: %v", err)
 	}
+	if equip.CraftCostGoldID == nil || *equip.CraftCostGoldID != 0 {
+		t.Fatalf("expected CraftCostGoldID == 0, got %v", equip.CraftCostGoldID)
+	}
+	if equip.CraftCostGoldNum == nil || *equip.CraftCostGoldNum != 0 {
+		t.Fatalf("expected CraftCostGoldNum == 0, got %v", equip.CraftCostGoldNum)
+	}
+	if _, ok := equip.Extra["futureEquipField"]; !ok {
+		t.Fatal("expected futureEquipField in Extra")
+	}
+
+	got, err := json.Marshal(equip)
+	if err != nil {
+		t.Fatalf("failed to marshal equip: %v", err)
+	}
+
+	assertJSONEqual(t, data, got)
+}
+
+func TestEquipCraftCostAbsenceIsPreserved(t *testing.T) {
+	data := []byte(`{"templateid":2846,"enhance":[]}`)
+
+	var equip Equip
+	if err := json.Unmarshal(data, &equip); err != nil {
+		t.Fatalf("failed to unmarshal equip: %v", err)
+	}
+	if equip.CraftCostGoldID != nil {
+		t.Fatalf("expected CraftCostGoldID == nil, got %v", equip.CraftCostGoldID)
+	}
+	if equip.CraftCostGoldNum != nil {
+		t.Fatalf("expected CraftCostGoldNum == nil, got %v", equip.CraftCostGoldNum)
+	}
 
 	got, err := json.Marshal(equip)
 	if err != nil {
