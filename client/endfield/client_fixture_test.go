@@ -49,6 +49,22 @@ func TestProfilePreservesUnknownFields(t *testing.T) {
 	assertJSONEqual(t, data, got)
 }
 
+func TestEquipPreservesCraftCostAndUnknownFields(t *testing.T) {
+	data := []byte(`{"templateid":2991,"enhance":[],"craftCostGoldId":0,"craftCostGoldNum":0,"futureEquipField":true}`)
+
+	var equip Equip
+	if err := json.Unmarshal(data, &equip); err != nil {
+		t.Fatalf("failed to unmarshal equip: %v", err)
+	}
+
+	got, err := json.Marshal(equip)
+	if err != nil {
+		t.Fatalf("failed to marshal equip: %v", err)
+	}
+
+	assertJSONEqual(t, data, got)
+}
+
 func TestValidationDoesNotRequireNetwork(t *testing.T) {
 	client := New(Options{UserAgent: "test-agent"})
 
