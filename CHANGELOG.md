@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.1.5] - 2026-11-16
+
+### Fixed
+- **Endfield Client:** Added optional `CraftCostGoldID` and `CraftCostGoldNum` `*int` fields with `omitempty` and unknown-field preservation via `Raw` and `Extra` to `Equip` to handle live API schema updates and fix integration test mismatches.
+
 ## [v1.1.4] - 2026-10-21
 
 ### Fixed
